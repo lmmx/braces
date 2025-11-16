@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/lmmx/braces/compare/braces-v0.1.1...braces-v0.1.2) - 2025-11-16
+
+### <!-- 2 -->Bug Fixes
+
+- release-plz needs binary name to release for cargo binstall
+
+### <!-- 4 -->Documentation
+
+- use --segment-split for CLI usage too
+- LICENSE x2
+
 ## [0.1.1](https://github.com/lmmx/braces/compare/v0.1.0...v0.1.1) - 2025-11-16
 
 ### <!-- 2 -->Bug Fixes
