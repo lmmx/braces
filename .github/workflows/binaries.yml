@@ -80,7 +80,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || startsWith(github.event.release.tag_name, env.BINARY_NAME)
         with:
           bin: ${{ env.BINARY_NAME }}
-          archive: ${{ env.BINARY_NAME }}-${{ matrix.target }}-${{ steps.version.outputs.VERSION }}
+          archive: ${{ env.BINARY_NAME }}-${{ steps.version.outputs.VERSION }}-${{ matrix.target }}
           target: ${{ matrix.target }}
           features: ${{ env.FEATURES }}
           tar: all
