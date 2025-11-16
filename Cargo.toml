@@ -1,0 +1,41 @@
+[package]
+name = "brace"
+version = "0.1.0"
+authors = ["Louis Maddox <louismmx@gmail.com>"]
+edition = "2021"
+rust-version = "1.70"
+description = "Convert path lists into compact brace expansion syntax"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/lmmx/brace"
+readme = "README.md"
+keywords = ["brace", "expansion", "paths", "shell", "glob"]
+categories = ["command-line-utilities", "filesystem"]
+
+[[bin]]
+name = "brace"
+path = "src/cli.rs"
+required-features = ["cli"]
+
+[features]
+default = []
+cli = []
+
+[dependencies]
+
+[dev-dependencies]
+
+[profile.release]
+lto = true
+strip = true
+
+[package.metadata.binstall]
+pkg-fmt = "tgz"
+pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-{ target }.tar.gz"
+
+[package.metadata.binstall.overrides.aarch64-pc-windows-msvc]
+pkg-fmt = "zip"
+pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-aarch64-pc-windows-msvc.zip"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-fmt = "zip"
+pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-x86_64-pc-windows-msvc.zip"
