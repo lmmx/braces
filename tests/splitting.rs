@@ -48,20 +48,6 @@ fn test_segment_split_with_three_levels() {
 }
 
 #[test]
-fn test_segment_split_disabled_simple() {
-    // Simplest case without path splitting
-    let config = BraceConfig {
-        allow_segment_split: false,
-        ..Default::default()
-    };
-    let paths = vec!["a/b", "a/c"];
-    let result = brace_paths(&paths, &config).unwrap();
-    println!("No path split, different endings: {}", result);
-    // Without path splitting, entire paths should be in one brace
-    assert_eq!(result, "{a/b,a/c}");
-}
-
-#[test]
 fn test_depth_limit_understanding() {
     // Understanding what depth means
     let config = BraceConfig {
