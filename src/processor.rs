@@ -2,8 +2,8 @@ use crate::error::{BraceError, Result};
 use std::collections::HashSet;
 
 mod expansion;
-mod trie;
 mod normalise;
+mod trie;
 
 use expansion::{compute_reprs, expand_braces};
 use normalise::{find_common_suffix, normalise_separators, validate_separators};
@@ -56,7 +56,8 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
     if !config.allow_mixed_separators {
         validate_separators(&paths, &config.path_separator)?;
     } else {
-        paths = paths.into_iter()
+        paths = paths
+            .into_iter()
             .map(|p| normalise_separators(&p, &config.path_separator))
             .collect();
     }
@@ -64,7 +65,11 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
     // Handle braces in input if reprocess disabled
     if !config.reprocess_braces && paths.iter().any(|p| p.contains('{') || p.contains('}')) {
         return Err(BraceError::InvalidBraceInput {
-            path: paths.iter().find(|p| p.contains('{') || p.contains('}')).unwrap().clone(),
+            path: paths
+                .iter()
+                .find(|p| p.contains('{') || p.contains('}'))
+                .unwrap()
+                .clone(),
             reason: "reprocess_braces is disabled".to_string(),
         });
     }
@@ -88,7 +93,8 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
     // Strip common suffix for cleaner braces
     let common_suffix = find_common_suffix(&paths);
     let stripped_paths: Vec<String> = if !common_suffix.is_empty() {
-        paths.iter()
+        paths
+            .iter()
             .map(|s| s.strip_suffix(&common_suffix).unwrap_or(s).to_string())
             .collect()
     } else {

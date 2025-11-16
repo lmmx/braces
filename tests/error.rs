@@ -1,4 +1,4 @@
-use brace::{BraceError, brace_paths, BraceConfig};
+use brace::{brace_paths, BraceConfig, BraceError};
 
 #[test]
 fn test_error_display() {

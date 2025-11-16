@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use crate::BraceConfig;
+use std::collections::BTreeMap;
 
 /// Trie node
 #[derive(Debug)]
@@ -12,7 +12,12 @@ pub struct Node {
 
 /// Build trie of paths
 pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Node>, usize) {
-    let mut nodes = vec![Node { label: String::new(), children: BTreeMap::new(), is_leaf: false, depth: 0 }];
+    let mut nodes = vec![Node {
+        label: String::new(),
+        children: BTreeMap::new(),
+        is_leaf: false,
+        depth: 0,
+    }];
 
     for path in paths {
         let comps: Vec<&str> = if !config.allow_path_split || sep.is_empty() {

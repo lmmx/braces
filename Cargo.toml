@@ -1,15 +1,15 @@
 [package]
-name = "brace"
-version = "0.1.0"
 authors = ["Louis Maddox <louismmx@gmail.com>"]
-edition = "2021"
-rust-version = "1.70"
-description = "Convert path lists into compact brace expansion syntax"
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/lmmx/brace"
-readme = "README.md"
-keywords = ["brace", "expansion", "paths", "shell", "glob"]
 categories = ["command-line-utilities", "filesystem"]
+description = "Convert path lists into compact brace expansion syntax"
+edition = "2021"
+keywords = ["brace", "expansion", "glob", "paths", "shell"]
+license = "MIT OR Apache-2.0"
+name = "brace"
+readme = "README.md"
+repository = "https://github.com/lmmx/brace"
+rust-version = "1.70"
+version = "0.1.0"
 
 [[bin]]
 name = "brace"
@@ -17,8 +17,8 @@ path = "src/cli.rs"
 required-features = ["cli"]
 
 [features]
-default = []
 cli = []
+default = []
 
 [dependencies]
 
