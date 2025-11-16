@@ -1,3 +1,6 @@
+[workspace]
+git_tag_name = "{{ package }}-v{{ version }}"
+
 [changelog]
 commit_parsers = [
   { group = "<!-- 0 -->Breaking", message = "!:" },
