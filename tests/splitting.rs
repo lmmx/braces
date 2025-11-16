@@ -72,21 +72,35 @@ fn test_depth_limit_understanding() {
     let result = brace_paths(&paths, &config).unwrap();
     println!("Depth 2, simple case: {}", result);
     // At depth 2 from root: a(0) -> b(1) -> {c,d}(2)
-    // Should work fine: a/b/{c,d}
+    assert_eq!(result, "a/b/{c,d}");
 }
 
 #[test]
 fn test_depth_limit_hit() {
     // What happens when we exactly hit the limit?
     let config = BraceConfig {
-        max_depth: 3,
+        max_depth: 2,
         ..Default::default()
     };
-    let paths = vec!["a/b/c/d/1", "a/b/c/d/2"];
+    let paths = vec!["a/b/c/d", "a/b/c/e", "a/b/f"];
     let result = brace_paths(&paths, &config).unwrap();
-    println!("Depth 3, going deep: {}", result);
-    // a(0) -> b(1) -> c(2) -> d(3) -> {1,2}(4)
-    // At depth 3, should stop nesting
+    println!("Depth 2, hitting limit: {}", result);
+
+    assert_eq!(result, "a/b/{c/{d,e},f}");
+}
+
+#[test]
+fn test_depth_limit_exceeded() {
+    // Testing with paths that exceed the depth limit
+    let config = BraceConfig {
+        max_depth: 1, // Set the maximum depth to 1
+        ..Default::default()
+    };
+    let paths = vec!["a/b/c/d", "a/b/c/e", "a/b/f/g", "a/b/f/h"];
+    let result = brace_paths(&paths, &config).unwrap();
+    println!("Exceeds depth 1 limit: {}", result);
+
+    assert_eq!(result, "a/b/{c/d,c/e,f/g,f/h}");
 }
 
 #[test]
@@ -99,5 +113,6 @@ fn test_no_path_split_preserves_structure() {
     let paths = vec!["abc", "abcd"];
     let result = brace_paths(&paths, &config).unwrap();
     println!("No path split, no separator: {}", result);
-    // Should be {abc,abcd} - no common prefix extraction
+    // No common prefix extraction
+    assert_eq!(result, "{abc,abcd}");
 }
