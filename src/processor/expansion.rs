@@ -1,6 +1,4 @@
-use super::normalise::{
-    can_stem_split, clean_trailing_sep, find_common_string_prefix, find_common_string_suffix,
-};
+use super::normalise::{can_stem_split, find_common_string_prefix, find_common_string_suffix};
 use super::trie::Node;
 use super::BraceConfig;
 use std::collections::{HashMap, HashSet};
@@ -42,14 +40,14 @@ pub fn compute_reprs(
         let mut child_repr_items = vec![];
         let mut child_raws = vec![];
 
-        for (child_label, &child_idx) in node.children.iter() {
+        for (child_label, child_idx) in node.children.iter() {
             child_repr_items.push(
                 reprs
-                    .get(&child_idx)
+                    .get(child_idx)
                     .cloned()
                     .unwrap_or_else(|| child_label.clone()),
             );
-            if let Some(r) = raw_leaves.get(&child_idx) {
+            if let Some(r) = raw_leaves.get(child_idx) {
                 child_raws.extend(r.clone());
             } else {
                 child_raws.push(child_label.clone());
@@ -83,7 +81,7 @@ pub fn compute_reprs(
 
         // Compose final representation
         let repr = if node.depth > config.max_depth {
-            // depth limit: use raw leaves - but list them separately if disallow_empty_braces
+            // depth limit: use raw leaves
             let suffixes: Vec<String> = node_raws
                 .iter()
                 .map(|s| {
@@ -99,7 +97,6 @@ pub fn compute_reprs(
                 })
                 .collect();
 
-            // FIX: Check disallow_empty_braces
             if config.disallow_empty_braces
                 && suffixes.iter().any(|s| s.is_empty())
                 && suffixes.len() > 1
@@ -111,7 +108,7 @@ pub fn compute_reprs(
                     sep,
                     &suffixes,
                     config.max_brace_size,
-                    !config.preserve_order_within_braces,
+                    config.sort_items,
                 )
             }
         } else {
@@ -120,12 +117,10 @@ pub fn compute_reprs(
                 items.push(String::new())
             }
 
-            // FIX: Check disallow_empty_braces before using braces
             if config.disallow_empty_braces && items.iter().any(|s| s.is_empty()) && items.len() > 1
             {
                 format!("{{{}}}", node_raws.join(","))
             } else if config.allow_stem_split && can_stem_split(&items) {
-                // FIX: Stem splitting should preserve separators
                 let prefix = find_common_string_prefix(&items);
                 let suffix = find_common_string_suffix(&items);
                 let mut vars = items
@@ -138,7 +133,7 @@ pub fn compute_reprs(
                             .to_string()
                     })
                     .collect::<Vec<_>>();
-                if !config.preserve_order_within_braces {
+                if config.sort_items {
                     vars.sort();
                 }
                 let inner = if vars.len() == 1 {
@@ -159,7 +154,7 @@ pub fn compute_reprs(
                     sep,
                     &items,
                     config.max_brace_size,
-                    !config.preserve_order_within_braces,
+                    config.sort_items,
                 )
             }
         };
@@ -178,10 +173,7 @@ fn compose_label_and_items(
     max_brace_size: Option<usize>,
     sort_items: bool,
 ) -> String {
-    let mut cleaned: Vec<String> = items
-        .iter()
-        .map(|s| clean_trailing_sep(s, sep).to_string())
-        .collect();
+    let mut cleaned: Vec<String> = items.to_vec();
     if sort_items {
         cleaned.sort();
     }
@@ -212,31 +204,30 @@ fn compose_label_and_items(
             }
             format!("{{{}}}", groups.join(","))
         }
+    } else if label.is_empty() {
+        compose_inner(&cleaned)
     } else {
-        // FIX: Handle empty strings in items - they should appear without separator
-        if label.is_empty() {
-            compose_inner(&cleaned)
+        // Handle empty strings properly
+        let has_empty = cleaned.iter().any(|s| s.is_empty());
+        if has_empty && cleaned.len() > 1 {
+            // When we have empty alternatives, format them correctly
+            // Empty means just the label (e.g., "a/")
+            // Non-empty means label + sep + item (e.g., "a/b")
+            let formatted: Vec<String> = cleaned
+                .iter()
+                .map(|s| {
+                    if s.is_empty() {
+                        String::new()
+                    } else {
+                        format!("{}{}", sep, s)
+                    }
+                })
+                .collect();
+            format!("{}{}", label, compose_inner(&formatted))
+        } else if cleaned.len() == 1 && cleaned[0].is_empty() {
+            label.to_string()
         } else {
-            // Check if any items are empty
-            let has_empty = cleaned.iter().any(|s| s.is_empty());
-            if has_empty && cleaned.len() > 1 {
-                // Special handling: mix of empty and non-empty
-                let formatted: Vec<String> = cleaned
-                    .iter()
-                    .map(|s| {
-                        if s.is_empty() {
-                            String::new()
-                        } else {
-                            format!("{}{}", sep, s)
-                        }
-                    })
-                    .collect();
-                format!("{}{}", label, compose_inner(&formatted))
-            } else if cleaned.len() == 1 && cleaned[0].is_empty() {
-                label.to_string()
-            } else {
-                format!("{}{}{}", label, sep, compose_inner(&cleaned))
-            }
+            format!("{}{}{}", label, sep, compose_inner(&cleaned))
         }
     }
 }

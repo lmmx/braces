@@ -24,7 +24,7 @@ fn test_stem_splitting() {
 
 #[test]
 fn test_order_of_appearance() {
-    assert_braces_default(vec!["z.rs", "b.rs"], "{b,z}.rs");
+    assert_braces_default(vec!["z.rs", "b.rs"], "{z,b}.rs");
 }
 
 #[test]

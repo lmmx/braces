@@ -5,7 +5,7 @@ use helpers::*;
 
 #[test]
 fn test_segment_splitting_enabled() {
-    assert_braces_default(vec!["a/b", "a/b/c"], "a/b{,/c}");
+    assert_braces_default(vec!["a/b", "a/b/c"], "a/b{/c,}");
 }
 
 #[test]
@@ -34,7 +34,7 @@ fn test_preserve_order_within_braces() {
 
 #[test]
 fn test_segment_split_with_three_levels() {
-    assert_braces_default(vec!["a/b", "a/b/c", "a/b/c/d"], "a/b{,/c{,/d}}");
+    assert_braces_default(vec!["a/b", "a/b/c", "a/b/c/d"], "a/b{/c{/d,},}");
 }
 
 #[test]

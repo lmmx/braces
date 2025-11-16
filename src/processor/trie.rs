@@ -1,11 +1,13 @@
+mod ordered_map;
+
 use crate::BraceConfig;
-use std::collections::BTreeMap;
+use ordered_map::OrderedMap;
 
 /// Trie node
 #[derive(Debug)]
 pub struct Node {
     pub label: String,
-    pub children: BTreeMap<String, usize>,
+    pub children: OrderedMap<String, usize>,
     pub is_leaf: bool,
     pub depth: usize,
 }
@@ -14,7 +16,7 @@ pub struct Node {
 pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Node>, usize) {
     let mut nodes = vec![Node {
         label: String::new(),
-        children: BTreeMap::new(),
+        children: OrderedMap::new(),
         is_leaf: false,
         depth: 0,
     }];
@@ -52,7 +54,7 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
                 nodes[cur].children.insert(comp.clone(), idx);
                 nodes.push(Node {
                     label: comp.clone(),
-                    children: BTreeMap::new(),
+                    children: OrderedMap::new(),
                     is_leaf: false,
                     depth: nodes[cur].depth + 1,
                 });

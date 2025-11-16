@@ -20,8 +20,6 @@ required-features = ["cli"]
 cli = []
 default = []
 
-[dependencies]
-
 [dev-dependencies]
 
 [profile.release]
