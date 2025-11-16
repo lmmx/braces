@@ -183,7 +183,7 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
         paths = paths.into_iter().flat_map(|p| expand_braces(&p)).collect();
     }
 
-    // Deduplicate while preserving order
+    // Deduplicate while preserving order (only if enabled)
     if config.deduplicate_inputs {
         let mut seen = HashSet::new();
         let mut ordered = Vec::with_capacity(paths.len());
