@@ -30,12 +30,12 @@ strip = true
 
 [package.metadata.binstall]
 pkg-fmt = "tgz"
-pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-v{ version }-{ target }.tar.gz"
+pkg-url = "https://github.com/lmmx/braces/releases/download/braces-v{ version }/braces-v{ version }-{ target }.tar.gz"
 
 [package.metadata.binstall.overrides.aarch64-pc-windows-msvc]
 pkg-fmt = "zip"
-pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-v{ version }-aarch64-pc-windows-msvc.zip"
+pkg-url = "https://github.com/lmmx/braces/releases/download/braces-v{ version }/braces-v{ version }-aarch64-pc-windows-msvc.zip"
 
 [package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
 pkg-fmt = "zip"
-pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-v{ version }-x86_64-pc-windows-msvc.zip"
+pkg-url = "https://github.com/lmmx/braces/releases/download/braces-v{ version }/braces-v{ version }-x86_64-pc-windows-msvc.zip"
