@@ -14,4 +14,5 @@ mod error;
 mod processor;
 
 pub use error::{BraceError, Result};
+pub use processor::expansion::expand_braces;
 pub use processor::{brace_paths, BraceConfig};

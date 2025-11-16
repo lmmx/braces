@@ -1,7 +1,7 @@
 use crate::error::{BraceError, Result};
 use std::collections::HashSet;
 
-mod expansion;
+pub(crate) mod expansion;
 mod normalise;
 mod trie;
 

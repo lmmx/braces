@@ -1,4 +1,4 @@
-use braces::{brace_paths, BraceConfig};
+use braces::{brace_paths, expand_braces, BraceConfig};
 
 fn round_trip(paths: Vec<&str>) {
     let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
@@ -12,7 +12,7 @@ fn round_trip(paths: Vec<&str>) {
 
     assert_eq!(
         expanded_sorted, paths_sorted,
-        "Expansion of '{}' should match original paths",
+        "Expansion (LHS) of '{}' should match original paths (RHS)",
         result
     );
 }
