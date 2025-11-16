@@ -3,16 +3,16 @@ authors = ["Louis Maddox <louismmx@gmail.com>"]
 categories = ["command-line-utilities", "filesystem"]
 description = "Convert path lists into compact brace expansion syntax"
 edition = "2021"
-keywords = ["brace", "expansion", "glob", "paths", "shell"]
+keywords = ["braces", "expansion", "glob", "paths", "shell"]
 license = "MIT OR Apache-2.0"
-name = "brace"
+name = "braces"
 readme = "README.md"
-repository = "https://github.com/lmmx/brace"
+repository = "https://github.com/lmmx/braces"
 rust-version = "1.70"
 version = "0.1.0"
 
 [[bin]]
-name = "brace"
+name = "braces"
 path = "src/cli.rs"
 required-features = ["cli"]
 
@@ -30,12 +30,12 @@ strip = true
 
 [package.metadata.binstall]
 pkg-fmt = "tgz"
-pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-{ target }.tar.gz"
+pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-{ target }.tar.gz"
 
 [package.metadata.binstall.overrides.aarch64-pc-windows-msvc]
 pkg-fmt = "zip"
-pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-aarch64-pc-windows-msvc.zip"
+pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-aarch64-pc-windows-msvc.zip"
 
 [package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
 pkg-fmt = "zip"
-pkg-url = "https://github.com/lmmx/brace/releases/download/v{ version }/brace-x86_64-pc-windows-msvc.zip"
+pkg-url = "https://github.com/lmmx/braces/releases/download/v{ version }/braces-x86_64-pc-windows-msvc.zip"

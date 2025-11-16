@@ -3,7 +3,7 @@ use std::io::{self, BufRead};
 
 #[cfg(feature = "cli")]
 fn main() {
-    use brace::{brace_paths, BraceConfig};
+    use braces::{brace_paths, BraceConfig};
 
     let args: Vec<String> = std::env::args().skip(1).collect();
 
@@ -88,11 +88,11 @@ fn main() {
 
 #[cfg(feature = "cli")]
 fn print_help() {
-    println!("brace - Convert path lists into brace expansion syntax");
+    println!("braces - Convert path lists into braces expansion syntax");
     println!();
     println!("USAGE:");
-    println!("    brace [OPTIONS] [PATHS...]");
-    println!("    echo -e \"path1\\npath2\" | brace [OPTIONS]");
+    println!("    braces [OPTIONS] [PATHS...]");
+    println!("    echo -e \"path1\\npath2\" | braces [OPTIONS]");
     println!();
     println!("OPTIONS:");
     println!("    --sort                  Sort items within braces");
@@ -109,8 +109,8 @@ fn print_help() {
     println!("    -h, --help             Print this help message");
     println!();
     println!("EXAMPLES:");
-    println!("    brace foo/bar.rs foo/baz.rs");
-    println!("    echo -e \"foo/bar.rs\\nfoo/baz.rs\" | brace --sort");
+    println!("    braces foo/bar.rs foo/baz.rs");
+    println!("    echo -e \"foo/bar.rs\\nfoo/baz.rs\" | braces --sort");
 }
 
 #[cfg(not(feature = "cli"))]

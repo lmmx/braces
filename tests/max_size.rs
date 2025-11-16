@@ -1,4 +1,4 @@
-use brace::{brace_paths, BraceConfig};
+use braces::{brace_paths, BraceConfig};
 
 #[test]
 fn test_max_brace_size() {

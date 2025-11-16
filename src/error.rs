@@ -30,7 +30,7 @@ impl fmt::Display for BraceError {
                 )
             }
             BraceError::InvalidBraceInput { path, reason } => {
-                write!(f, "Invalid brace input '{}': {}", path, reason)
+                write!(f, "Invalid braces input '{}': {}", path, reason)
             }
             BraceError::DepthLimitExceeded { limit } => {
                 write!(f, "Brace depth limit of {} exceeded", limit)

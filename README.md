@@ -1,10 +1,16 @@
-# brace
+# braces
 
-Convert file paths into compact brace expansion syntax.
+[![crates.io](https://img.shields.io/crates/v/braces.svg)](https://crates.io/crates/braces)
+[![documentation](https://docs.rs/braces/badge.svg)](https://docs.rs/braces)
+[![MIT/Apache-2.0 licensed](https://img.shields.io/crates/l/braces.svg)](./LICENSE)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/lmmx/braces/master.svg)](https://results.pre-commit.ci/latest/github/lmmx/braces/master)
+[![free of syn](https://img.shields.io/badge/free%20of-syn-hotpink)](https://github.com/fasterthanlime/free-of-syn)
+
+Convert file paths into compact braces expansion syntax.
 
 ## Examples
 ```rust
-use brace::{brace_paths, BraceConfig};
+use braces::{brace_paths, BraceConfig};
 
 // Basic usage
 let paths = vec!["foo/bar.rs", "foo/baz.rs"];
@@ -75,15 +81,15 @@ assert_eq!(result, "a/b/{c/{1,2},d/3}");
 ## CLI Usage
 ```bash
 # From arguments
-brace foo/bar.rs foo/baz.rs
+braces foo/bar.rs foo/baz.rs
 # Output: foo/{bar,baz}.rs
 
 # From stdin
-echo -e "foo/bar.rs\nfoo/baz.rs" | brace
+echo -e "foo/bar.rs\nfoo/baz.rs" | braces
 # Output: foo/{bar,baz}.rs
 
 # With options
-brace --sort --stem-split foo/bar.rs foo/baz.rs
+braces --sort --stem-split foo/bar.rs foo/baz.rs
 ```
 
 ## Configuration
@@ -102,16 +108,16 @@ brace --sort --stem-split foo/bar.rs foo/baz.rs
 | `preserve_order_within_braces` | `bool` | `false` | Maintain exact input order within braces |
 | `allow_mixed_separators` | `bool` | `false` | Normalize different separators to `path_separator` |
 | `deduplicate_inputs` | `bool` | `true` | Remove duplicate paths before processing |
-| `reprocess_braces` | `bool` | `false` | Expand and reprocess existing brace syntax |
+| `reprocess_braces` | `bool` | `false` | Expand and reprocess existing braces syntax |
 
 ## Installation
 ```bash
-cargo add brace
+cargo add braces
 ```
 
 Or install the CLI:
 ```bash
-cargo install brace --features cli
+cargo install braces --features cli
 ```
 
 ## License

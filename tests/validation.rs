@@ -1,4 +1,4 @@
-use brace::{brace_paths, BraceConfig, BraceError};
+use braces::{brace_paths, BraceConfig, BraceError};
 
 #[test]
 fn test_disallow_empty_braces() {

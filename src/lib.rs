@@ -3,7 +3,7 @@
 //! # Examples
 //!
 //! ```
-//! use brace::{brace_paths, BraceConfig};
+//! use braces::{brace_paths, BraceConfig};
 //!
 //! let paths = vec!["foo/bar.rs", "foo/baz.rs"];
 //! let result = brace_paths(&paths, &BraceConfig::default()).unwrap();

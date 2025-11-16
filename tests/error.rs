@@ -1,4 +1,4 @@
-use brace::{brace_paths, BraceConfig, BraceError};
+use braces::{brace_paths, BraceConfig, BraceError};
 
 #[test]
 fn test_error_display() {
@@ -15,7 +15,7 @@ fn test_error_display() {
         path: "foo/{bar}".to_string(),
         reason: "test".to_string(),
     };
-    assert!(format!("{}", brace_err).contains("Invalid brace input"));
+    assert!(format!("{}", brace_err).contains("Invalid braces input"));
 
     let depth_err = BraceError::DepthLimitExceeded { limit: 5 };
     assert!(format!("{}", depth_err).contains("depth limit"));
