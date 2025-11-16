@@ -51,10 +51,14 @@ fn main() {
                     }
                 }
             }
-            _ if !arg.starts_with("--") => {
+            _ if arg.starts_with("--") => {
+                eprintln!("Error: Unknown option: {}", arg);
+                print_help();
+                std::process::exit(1);
+            }
+            _ => {
                 paths.push(arg.clone());
             }
-            _ => {}
         }
         i += 1;
     }
