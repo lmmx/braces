@@ -23,7 +23,7 @@ fn main() {
         match arg.as_str() {
             "--sort" => config.sort_items = true,
             "--stem-split" => config.allow_stem_split = true,
-            "--no-path-split" => config.allow_segment_split = false,
+            "--no-segment-split" => config.allow_segment_split = false,
             "--disallow-empty" => config.disallow_empty_braces = true,
             "--no-dedup" => config.deduplicate_inputs = false,
             "--reprocess" => config.reprocess_braces = true,
@@ -95,7 +95,7 @@ fn print_help() {
     println!("OPTIONS:");
     println!("    --sort                  Sort items within braces");
     println!("    --stem-split           Enable stem-level character splitting");
-    println!("    --no-path-split        Disable path splitting (no empty components)");
+    println!("    --no-segment-split     Disable segment splitting (no empty components)");
     println!("    --disallow-empty       Output separate paths instead of empty braces");
     println!("    --no-dedup             Don't remove duplicate paths");
     println!("    --reprocess            Expand and reprocess existing braces");
