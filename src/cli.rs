@@ -62,12 +62,10 @@ fn main() {
     // Read from stdin if no paths provided
     if paths.is_empty() {
         let stdin = io::stdin();
-        for line in stdin.lock().lines() {
-            if let Ok(path) = line {
-                let path = path.trim();
-                if !path.is_empty() {
-                    paths.push(path.to_string());
-                }
+        for line in stdin.lock().lines().map_while(Result::ok) {
+            let path = line.trim();
+            if !path.is_empty() {
+                paths.push(path.to_string());
             }
         }
     }

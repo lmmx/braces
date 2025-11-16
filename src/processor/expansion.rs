@@ -253,7 +253,7 @@ pub fn expand_braces(pattern: &str) -> Vec<String> {
         if ch == '{' {
             let mut depth = 1;
             let mut inner = String::new();
-            while let Some(c) = chars.next() {
+            for c in chars.by_ref() {
                 if c == '{' {
                     depth += 1;
                     inner.push(c);
