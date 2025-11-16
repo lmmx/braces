@@ -1,17 +1,19 @@
 # brace
 
-Convert lists of file paths into compact brace expansion syntax.
+Convert file paths into compact brace expansion syntax.
 
 ## Examples
 ```rust
 use brace::{brace_paths, BraceConfig};
 
+// Basic usage
 let paths = vec!["foo/bar.rs", "foo/baz.rs"];
 let result = brace_paths(&paths, &BraceConfig::default())?;
 assert_eq!(result, "foo/{bar,baz}.rs");
 ```
 
 ### Stem Splitting
+Factor out common character prefixes within path segments:
 ```rust
 let config = BraceConfig {
     allow_stem_split: true,
@@ -22,16 +24,17 @@ let result = brace_paths(&paths, &config)?;
 assert_eq!(result, "foo/ba{r,z}.rs");
 ```
 
-### Path Splitting
+### Segment Splitting
+Control whether to create empty alternatives when one path is a prefix of another:
 ```rust
-// With path splitting (default)
+// Enabled (default) - creates empty alternative
 let paths = vec!["a/b", "a/b/c"];
 let result = brace_paths(&paths, &BraceConfig::default())?;
 assert_eq!(result, "a/b{,/c}");
 
-// Without path splitting
+// Disabled - keeps paths whole
 let config = BraceConfig {
-    allow_path_split: false,
+    allow_segment_split: false,
     ..Default::default()
 };
 let result = brace_paths(&paths, &config)?;
@@ -40,23 +43,23 @@ assert_eq!(result, "a/{b,b/c}");
 
 ### Sorting
 ```rust
-// Order of appearance
+// Default: sorted within braces
 let paths = vec!["z.rs", "b.rs"];
 let result = brace_paths(&paths, &BraceConfig::default())?;
-assert_eq!(result, "{z,b}.rs");
+assert_eq!(result, "{b,z}.rs");
 
-// Sorted
+// Preserve input order
 let config = BraceConfig {
-    sort_items: true,
+    preserve_order_within_braces: true,
     ..Default::default()
 };
 let result = brace_paths(&paths, &config)?;
-assert_eq!(result, "{b,z}.rs");
+assert_eq!(result, "{z,b}.rs");
 ```
 
 ### Depth Limiting
+Limit brace nesting to prevent performance issues:
 ```rust
-// Default depth limit of 5
 let config = BraceConfig {
     max_depth: 2,
     ..Default::default()
@@ -65,13 +68,8 @@ let paths = vec!["a/b/c/1", "a/b/c/2", "a/b/d/3"];
 let result = brace_paths(&paths, &config)?;
 assert_eq!(result, "a/b/{c/{1,2},d/3}");
 
-// Depth limit of 1
-let config = BraceConfig {
-    max_depth: 1,
-    ..Default::default()
-};
-let result = brace_paths(&paths, &config)?;
-assert_eq!(result, "a/{b/c/1,b/c/2,b/d/3}");
+// With max_depth: 1
+// Result: a/b/{c/1,c/2,d/3}
 ```
 
 ## CLI Usage
@@ -86,24 +84,35 @@ echo -e "foo/bar.rs\nfoo/baz.rs" | brace
 
 # With options
 brace --sort --stem-split foo/bar.rs foo/baz.rs
-# Output: foo/ba{r,z}.rs
 ```
 
 ## Configuration
 
-All options in `BraceConfig`:
+`BraceConfig` options:
 
-- `path_separator`: String (default: "/")
-- `max_depth`: usize (default: 5) - maximum brace nesting depth
-- `max_brace_size`: Option<usize> (default: None) - maximum items per brace
-- `allow_stem_split`: bool (default: false) - enable stem-level character splitting
-- `allow_path_split`: bool (default: true) - allow empty components like `{,/c}`
-- `sort_items`: bool (default: false) - sort items within braces
-- `disallow_empty_braces`: bool (default: false) - output separate paths instead of `{,/c}`
-- `preserve_order_within_braces`: bool (default: false) - when false and not sorting, still sort within braces for readability
-- `allow_mixed_separators`: bool (default: false) - normalize mixed separators to path_separator
-- `deduplicate_inputs`: bool (default: true) - remove duplicate paths
-- `reprocess_braces`: bool (default: false) - expand and reprocess existing braces in input
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `path_separator` | `String` | `"/"` | Path separator to use |
+| `max_depth` | `usize` | `5` | Maximum brace nesting depth |
+| `max_brace_size` | `Option<usize>` | `None` | Maximum items per brace group |
+| `allow_stem_split` | `bool` | `false` | Factor out character-level prefixes |
+| `allow_segment_split` | `bool` | `true` | Allow empty alternatives like `{,/c}` |
+| `sort_items` | `bool` | `false` | Sort items alphabetically |
+| `disallow_empty_braces` | `bool` | `false` | Output separate paths instead of empty alternatives |
+| `preserve_order_within_braces` | `bool` | `false` | Maintain exact input order within braces |
+| `allow_mixed_separators` | `bool` | `false` | Normalize different separators to `path_separator` |
+| `deduplicate_inputs` | `bool` | `true` | Remove duplicate paths before processing |
+| `reprocess_braces` | `bool` | `false` | Expand and reprocess existing brace syntax |
+
+## Installation
+```bash
+cargo add brace
+```
+
+Or install the CLI:
+```bash
+cargo install brace --features cli
+```
 
 ## License
 
