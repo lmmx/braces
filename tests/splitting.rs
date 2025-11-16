@@ -10,7 +10,7 @@ fn test_path_splitting_enabled() {
 #[test]
 fn test_path_splitting_disabled() {
     let config = BraceConfig {
-        allow_path_split: false,
+        allow_segment_split: false,
         ..Default::default()
     };
     let paths = vec!["a/b", "a/b/c"];
@@ -51,7 +51,7 @@ fn test_path_split_with_three_levels() {
 fn test_path_split_disabled_simple() {
     // Simplest case without path splitting
     let config = BraceConfig {
-        allow_path_split: false,
+        allow_segment_split: false,
         ..Default::default()
     };
     let paths = vec!["a/b", "a/c"];
@@ -107,7 +107,7 @@ fn test_depth_limit_exceeded() {
 fn test_no_path_split_preserves_structure() {
     // When path split is off, we treat whole paths as atoms
     let config = BraceConfig {
-        allow_path_split: false,
+        allow_segment_split: false,
         ..Default::default()
     };
     let paths = vec!["abc", "abcd"];

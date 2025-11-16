@@ -23,7 +23,7 @@ fn main() {
         match arg.as_str() {
             "--sort" => config.sort_items = true,
             "--stem-split" => config.allow_stem_split = true,
-            "--no-path-split" => config.allow_path_split = false,
+            "--no-path-split" => config.allow_segment_split = false,
             "--disallow-empty" => config.disallow_empty_braces = true,
             "--no-dedup" => config.deduplicate_inputs = false,
             "--reprocess" => config.reprocess_braces = true,

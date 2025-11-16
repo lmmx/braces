@@ -20,7 +20,7 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
     }];
 
     for path in paths {
-        let comps: Vec<&str> = if !config.allow_path_split || sep.is_empty() {
+        let comps: Vec<&str> = if !config.allow_segment_split || sep.is_empty() {
             vec![path.as_str()]
         } else {
             path.split(sep).collect()

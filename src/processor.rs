@@ -10,18 +10,123 @@ use normalise::{find_common_suffix, normalise_separators, validate_separators};
 use trie::build_trie;
 
 /// Configuration for brace expansion
+///
+/// Controls how paths are compressed into brace notation. For example,
+/// `["a/b.rs", "a/c.rs"]` can become `"a/{b,c}.rs"` depending on settings.
 #[derive(Debug, Clone)]
 pub struct BraceConfig {
+    /// Path separator to use (default: `"/"`).
+    ///
+    /// This separator is used to split paths into segments and will be the
+    /// separator in the output. When `allow_mixed_separators` is false, input
+    /// paths with different separators will cause an error.
     pub path_separator: String,
+
+    /// Maximum nesting depth of braces (default: `5`).
+    ///
+    /// Limits how deeply braces can be nested to prevent performance issues.
+    /// When the limit is reached, remaining items are kept as full subpaths.
+    ///
+    /// # Examples
+    /// With `max_depth = 2`:
+    /// - `["a/b/c/1", "a/b/c/2", "a/b/d/3"]` → `"a/b/{c/{1,2},d/3}"`
+    ///
+    /// With `max_depth = 1`:
+    /// - `["a/b/c/1", "a/b/c/2", "a/b/d/3"]` → `"a/b/{c/1,c/2,d/3}"`
     pub max_depth: usize,
+
+    /// Maximum number of items allowed in a single brace group (default: `None`).
+    ///
+    /// When set, splits large brace groups into multiple groups to prevent
+    /// extremely long output. If a brace would exceed this size, it's split
+    /// into multiple braces each within the limit.
+    ///
+    /// # Example
+    /// With `max_brace_size = Some(2)`:
+    /// - `"a/{b,c,d}"` → `"a/{b,c} a/{d}"`
     pub max_brace_size: Option<usize>,
+
+    /// Allow splitting within filename stems (default: `false`).
+    ///
+    /// When enabled, common prefixes within path segments (not just at
+    /// separator boundaries) can be factored out.
+    ///
+    /// # Examples
+    /// When `true`:
+    /// - `["foo/bar.rs", "foo/baz.rs"]` → `"foo/ba{r,z}.rs"`
+    ///
+    /// When `false`:
+    /// - `["foo/bar.rs", "foo/baz.rs"]` → `"foo/{bar,baz}.rs"`
     pub allow_stem_split: bool,
-    pub allow_path_split: bool,
+
+    /// Allow splitting path segments to factor out common prefixes (default: `true`).
+    ///
+    /// When enabled, allows factoring out segments even when one path is a
+    /// prefix of another, creating braces with empty alternatives.
+    ///
+    /// # Examples
+    /// When `true`:
+    /// - `["a/b", "a/b/c"]` → `"a/b{,/c}"`
+    ///
+    /// When `false`:
+    /// - `["a/b", "a/b/c"]` → `"a/{b,b/c}"`
+    pub allow_segment_split: bool,
+
+    /// Sort items within brace groups alphabetically (default: `false`).
+    ///
+    /// When enabled, items within each brace group are sorted. When disabled,
+    /// items appear in their order from the input (unless
+    /// `preserve_order_within_braces` is also false).
+    ///
+    /// # Examples
+    /// When `true`:
+    /// - `["z.rs", "b.rs"]` → `"{b,z}.rs"`
+    ///
+    /// When `false` (with `preserve_order_within_braces = true`):
+    /// - `["z.rs", "b.rs"]` → `"{z,b}.rs"`
     pub sort_items: bool,
+
+    /// Disallow braces with empty alternatives (default: `false`).
+    ///
+    /// When enabled, prevents output like `"a/b{,/c}"` by outputting paths
+    /// separately instead.
+    ///
+    /// # Examples
+    /// When `true`:
+    /// - `["a/b", "a/b/c"]` → `"a/b a/b/c"` (space-separated)
+    ///
+    /// When `false`:
+    /// - `["a/b", "a/b/c"]` → `"a/b{,/c}"`
     pub disallow_empty_braces: bool,
+
+    /// Preserve input order within braces when not sorting (default: `false`).
+    ///
+    /// When `false` and `sort_items` is also `false`, items may still be
+    /// reordered for consistency. When `true`, the exact input order is maintained.
     pub preserve_order_within_braces: bool,
+
+    /// Allow and normalize mixed path separators in input (default: `false`).
+    ///
+    /// When `false`, input paths with separators different from `path_separator`
+    /// will cause an error. When `true`, all separators are normalized to
+    /// `path_separator`.
     pub allow_mixed_separators: bool,
+
+    /// Remove duplicate paths from input before processing (default: `true`).
+    ///
+    /// When enabled, duplicate paths are removed. When disabled, duplicates
+    /// are preserved in the output.
     pub deduplicate_inputs: bool,
+
+    /// Expand existing braces in input before reprocessing (default: `false`).
+    ///
+    /// When `false`, input containing brace syntax will cause an error (prevents
+    /// injection attacks). When `true`, existing braces are expanded and then
+    /// re-compressed according to the current configuration.
+    ///
+    /// # Example
+    /// When `true`:
+    /// - Input: `"a/{b,c}.rs"` → Expanded to `["a/b.rs", "a/c.rs"]` → Reprocessed
     pub reprocess_braces: bool,
 }
 
@@ -32,7 +137,7 @@ impl Default for BraceConfig {
             max_depth: 5,
             max_brace_size: None,
             allow_stem_split: false,
-            allow_path_split: true,
+            allow_segment_split: true,
             sort_items: false,
             disallow_empty_braces: false,
             preserve_order_within_braces: false,
