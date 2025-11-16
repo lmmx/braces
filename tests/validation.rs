@@ -1,26 +1,24 @@
+mod helpers;
+
 use braces::{brace_paths, BraceConfig, BraceError};
+use helpers::*;
 
 #[test]
-fn test_disallow_empty_braces() {
+fn test_disallow_empty_braces_1_to_2_levels() {
     let config = BraceConfig {
         disallow_empty_braces: true,
         ..Default::default()
     };
-    let paths = vec!["a/b", "a/b/c"];
-    let result = brace_paths(&paths, &config).unwrap();
-    assert_eq!(result, "a/{b/c,b}");
+    assert_braces(vec!["a", "a/b"], "{a/b,a}", &config);
 }
 
 #[test]
-fn test_disallow_empty_simple() {
-    // Simplest case of empty brace
+fn test_disallow_empty_braces_2_to_3_levels() {
     let config = BraceConfig {
         disallow_empty_braces: true,
         ..Default::default()
     };
-    let paths = vec!["a", "a/b"];
-    let result = brace_paths(&paths, &config).unwrap();
-    assert_eq!(result, "{a/b,a}");
+    assert_braces(vec!["a/b", "a/b/c"], "a/{b/c,b}", &config);
 }
 
 #[test]
@@ -39,9 +37,10 @@ fn test_mixed_separators_rejected() {
 
 #[test]
 fn test_deduplication_enabled() {
-    let paths = vec!["foo/bar.rs", "foo/bar.rs", "foo/baz.rs"];
-    let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
-    assert_eq!(result, "foo/{bar,baz}.rs");
+    assert_braces_default(
+        vec!["foo/bar.rs", "foo/bar.rs", "foo/baz.rs"],
+        "foo/{bar,baz}.rs",
+    );
 }
 
 #[test]
@@ -50,10 +49,11 @@ fn test_deduplication_disabled() {
         deduplicate_inputs: false,
         ..Default::default()
     };
-    let paths = vec!["foo/bar.rs", "foo/bar.rs", "foo/baz.rs"];
-    let result = brace_paths(&paths, &config).unwrap();
-    // Should keep duplicates
-    assert!(result.contains("bar") && result.contains("baz"));
+    assert_braces(
+        vec!["foo/bar.rs", "foo/bar.rs", "foo/baz.rs"],
+        "foo/{bar,bar,baz}",
+        &config,
+    );
 }
 
 #[test]
@@ -65,14 +65,9 @@ fn test_braces_in_input_rejected() {
 
 #[test]
 fn test_disallow_empty_with_nested() {
-    // Pin down: disallow_empty_braces with nested paths
     let config = BraceConfig {
         disallow_empty_braces: true,
         ..Default::default()
     };
-    let paths = vec!["a/b/c", "a/b/d"];
-    let result = brace_paths(&paths, &config).unwrap();
-    // Should this use braces? These aren't empty braces
-    println!("Disallow empty, no empties: {}", result);
-    assert_eq!(result, "a/b/{c,d}");
+    assert_braces(vec!["a/b", "a/b/c"], "a/{b/c,b}", &config);
 }

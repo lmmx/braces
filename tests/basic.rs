@@ -1,10 +1,16 @@
-use braces::{brace_paths, BraceConfig};
+mod helpers;
+
+use braces::BraceConfig;
+use helpers::*;
 
 #[test]
 fn test_basic_bracing() {
-    let paths = vec!["foo/bar.rs", "foo/baz.rs"];
-    let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
-    assert_eq!(result, "foo/{bar,baz}.rs");
+    assert_braces_default(vec!["a/b.rs", "a/c.rs"], "a/{b,c}.rs");
+}
+
+#[test]
+fn test_trailing_slash_preserved() {
+    assert_braces_default(vec!["a/", "a/b"], "a/{,b}");
 }
 
 #[test]
@@ -13,16 +19,12 @@ fn test_stem_splitting() {
         allow_stem_split: true,
         ..Default::default()
     };
-    let paths = vec!["foo/bar.rs", "foo/baz.rs"];
-    let result = brace_paths(&paths, &config).unwrap();
-    assert_eq!(result, "foo/ba{r,z}.rs");
+    assert_braces(vec!["foo/bar.rs", "foo/baz.rs"], "foo/ba{r,z}.rs", &config);
 }
 
 #[test]
 fn test_order_of_appearance() {
-    let paths = vec!["z.rs", "b.rs"];
-    let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
-    assert_eq!(result, "{b,z}.rs");
+    assert_braces_default(vec!["z.rs", "b.rs"], "{b,z}.rs");
 }
 
 #[test]
@@ -31,27 +33,20 @@ fn test_sorted_order() {
         sort_items: true,
         ..Default::default()
     };
-    let paths = vec!["z.rs", "b.rs"];
-    let result = brace_paths(&paths, &config).unwrap();
-    assert_eq!(result, "{b,z}.rs");
+    assert_braces(vec!["z.rs", "b.rs"], "{b,z}.rs", &config);
 }
 
 #[test]
 fn test_single_path() {
-    let paths = vec!["foo/bar.rs"];
-    let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
-    assert_eq!(result, "foo/bar.rs");
+    assert_braces_default(vec!["foo/bar.rs"], "foo/bar.rs");
 }
 
 #[test]
 fn test_complex_paths() {
-    let paths = vec![
-        "src/processor.rs",
-        "src/cli.rs",
-        "src/error.rs",
-        "tests/processor.rs",
-    ];
-    let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
-    // Should group by src/ and tests/
-    assert!(result.contains("src/") && result.contains("tests/"));
+    // Should group by x/ and y/
+    // assert!(result.contains("x/") && result.contains("y/"));
+    assert_braces_default(
+        vec!["x/a.rs", "x/b.rs", "x/c.rs", "y/a.rs"],
+        "{x/{a,b,c},y/a}.rs",
+    );
 }

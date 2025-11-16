@@ -1,5 +1,7 @@
 use braces::{brace_paths, expand_braces, BraceConfig};
 
+// === Helpers ===
+
 /// Test that brace expansion round-trips correctly
 fn assert_round_trip(paths: Vec<&str>, config: &BraceConfig) {
     let result = brace_paths(&paths, config).unwrap();
@@ -18,23 +20,12 @@ fn assert_round_trip(paths: Vec<&str>, config: &BraceConfig) {
     );
 }
 
-/// Test that paths produce expected brace output
-fn assert_braces(paths: Vec<&str>, expected: &str, config: &BraceConfig) {
-    let result = brace_paths(&paths, config).unwrap();
-    assert_eq!(result, expected, "Bracing {:?}", paths);
-}
-
-/// Test with default config
-fn assert_braces_default(paths: Vec<&str>, expected: &str) {
-    assert_braces(paths, expected, &BraceConfig::default());
-}
-
 /// Test round-trip with default config
 fn assert_round_trip_default(paths: Vec<&str>) {
     assert_round_trip(paths, &BraceConfig::default());
 }
 
-// === Round-trip tests ===
+// === Tests ===
 
 #[test]
 fn test_round_trip_trailing_slash() {
