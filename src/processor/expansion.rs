@@ -104,8 +104,7 @@ pub fn compute_reprs(
                 && suffixes.iter().any(|s| s.is_empty())
                 && suffixes.len() > 1
             {
-                // Don't use braces, list separately
-                node_raws.join(" ")
+                format!("{{{}}}", node_raws.join(","))
             } else {
                 compose_label_and_items(
                     &node.label,
@@ -124,8 +123,7 @@ pub fn compute_reprs(
             // FIX: Check disallow_empty_braces before using braces
             if config.disallow_empty_braces && items.iter().any(|s| s.is_empty()) && items.len() > 1
             {
-                // Don't use braces, return space-separated full paths
-                node_raws.join(" ")
+                format!("{{{}}}", node_raws.join(","))
             } else if config.allow_stem_split && can_stem_split(&items) {
                 // FIX: Stem splitting should preserve separators
                 let prefix = find_common_string_prefix(&items);
@@ -212,7 +210,7 @@ fn compose_label_and_items(
                     groups.push(format!("{}{}{}", label, sep, compose_inner(chunk)))
                 }
             }
-            groups.join(" ")
+            format!("{{{}}}", groups.join(","))
         }
     } else {
         // FIX: Handle empty strings in items - they should appear without separator
