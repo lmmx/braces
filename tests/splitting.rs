@@ -1,14 +1,14 @@
 use brace::{brace_paths, BraceConfig};
 
 #[test]
-fn test_path_splitting_enabled() {
+fn test_segment_splitting_enabled() {
     let paths = vec!["a/b", "a/b/c"];
     let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
     assert_eq!(result, "a/b{,/c}");
 }
 
 #[test]
-fn test_path_splitting_disabled() {
+fn test_segment_splitting_disabled() {
     let config = BraceConfig {
         allow_segment_split: false,
         ..Default::default()
@@ -39,7 +39,7 @@ fn test_preserve_order_within_braces() {
 }
 
 #[test]
-fn test_path_split_with_three_levels() {
+fn test_segment_split_with_three_levels() {
     // Pin down: what happens with a/b, a/b/c, a/b/c/d?
     let paths = vec!["a/b", "a/b/c", "a/b/c/d"];
     let result = brace_paths(&paths, &BraceConfig::default()).unwrap();
@@ -48,7 +48,7 @@ fn test_path_split_with_three_levels() {
 }
 
 #[test]
-fn test_path_split_disabled_simple() {
+fn test_segment_split_disabled_simple() {
     // Simplest case without path splitting
     let config = BraceConfig {
         allow_segment_split: false,
@@ -104,7 +104,7 @@ fn test_depth_limit_exceeded() {
 }
 
 #[test]
-fn test_no_path_split_preserves_structure() {
+fn test_no_segment_split_preserves_structure() {
     // When path split is off, we treat whole paths as atoms
     let config = BraceConfig {
         allow_segment_split: false,
