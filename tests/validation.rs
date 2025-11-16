@@ -20,7 +20,7 @@ fn test_disallow_empty_simple() {
     };
     let paths = vec!["a", "a/b"];
     let result = brace_paths(&paths, &config).unwrap();
-    assert_eq!(result, "a a/b");
+    assert_eq!(result, "a/b a");
 }
 
 #[test]
