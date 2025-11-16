@@ -9,7 +9,7 @@ name = "braces"
 readme = "README.md"
 repository = "https://github.com/lmmx/braces"
 rust-version = "1.70"
-version = "0.1.0"
+version = "0.1.1"
 
 [[bin]]
 name = "braces"
