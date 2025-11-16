@@ -97,8 +97,3 @@ pub fn find_common_string_suffix(strings: &[String]) -> String {
     }
     common.into_iter().rev().collect()
 }
-
-/// Strip trailing separator
-pub fn clean_trailing_sep<'a>(s: &'a str, _sep: &str) -> &'a str {
-    s.strip_suffix(_sep).unwrap_or(s)
-}

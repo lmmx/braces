@@ -1,6 +1,4 @@
-use super::normalise::{
-    can_stem_split, clean_trailing_sep, find_common_string_prefix, find_common_string_suffix,
-};
+use super::normalise::{can_stem_split, find_common_string_prefix, find_common_string_suffix};
 use super::trie::Node;
 use super::BraceConfig;
 use std::collections::{HashMap, HashSet};
@@ -42,14 +40,14 @@ pub fn compute_reprs(
         let mut child_repr_items = vec![];
         let mut child_raws = vec![];
 
-        for (child_label, &child_idx) in node.children.iter() {
+        for (child_label, child_idx) in node.children.iter() {
             child_repr_items.push(
                 reprs
-                    .get(&child_idx)
+                    .get(child_idx)
                     .cloned()
                     .unwrap_or_else(|| child_label.clone()),
             );
-            if let Some(r) = raw_leaves.get(&child_idx) {
+            if let Some(r) = raw_leaves.get(child_idx) {
                 child_raws.extend(r.clone());
             } else {
                 child_raws.push(child_label.clone());
@@ -206,32 +204,30 @@ fn compose_label_and_items(
             }
             format!("{{{}}}", groups.join(","))
         }
+    } else if label.is_empty() {
+        compose_inner(&cleaned)
     } else {
-        if label.is_empty() {
-            compose_inner(&cleaned)
+        // Handle empty strings properly
+        let has_empty = cleaned.iter().any(|s| s.is_empty());
+        if has_empty && cleaned.len() > 1 {
+            // When we have empty alternatives, format them correctly
+            // Empty means just the label (e.g., "a/")
+            // Non-empty means label + sep + item (e.g., "a/b")
+            let formatted: Vec<String> = cleaned
+                .iter()
+                .map(|s| {
+                    if s.is_empty() {
+                        String::new()
+                    } else {
+                        format!("{}{}", sep, s)
+                    }
+                })
+                .collect();
+            format!("{}{}", label, compose_inner(&formatted))
+        } else if cleaned.len() == 1 && cleaned[0].is_empty() {
+            label.to_string()
         } else {
-            // Handle empty strings properly
-            let has_empty = cleaned.iter().any(|s| s.is_empty());
-            if has_empty && cleaned.len() > 1 {
-                // When we have empty alternatives, format them correctly
-                // Empty means just the label (e.g., "a/")
-                // Non-empty means label + sep + item (e.g., "a/b")
-                let formatted: Vec<String> = cleaned
-                    .iter()
-                    .map(|s| {
-                        if s.is_empty() {
-                            String::new()
-                        } else {
-                            format!("{}{}", sep, s)
-                        }
-                    })
-                    .collect();
-                format!("{}{}", label, compose_inner(&formatted))
-            } else if cleaned.len() == 1 && cleaned[0].is_empty() {
-                label.to_string()
-            } else {
-                format!("{}{}{}", label, sep, compose_inner(&cleaned))
-            }
+            format!("{}{}{}", label, sep, compose_inner(&cleaned))
         }
     }
 }
