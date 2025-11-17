@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6](https://github.com/lmmx/braces/compare/braces-v0.2.5...braces-v0.2.6) - 2025-11-17
+
+### <!-- 9 -->Other
+
+- pretty highlight fix ([#17](https://github.com/lmmx/braces/pull/17))
+
 ## [0.2.5](https://github.com/lmmx/braces/compare/braces-v0.2.4...braces-v0.2.5) - 2025-11-17
 
 ### <!-- 4 -->Documentation
