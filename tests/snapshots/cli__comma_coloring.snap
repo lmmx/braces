@@ -1,0 +1,5 @@
+---
+source: tests/cli.rs
+expression: output
+---
+[36m{[0ma[36m,[0mb[36m,[0mc[36m}[0m

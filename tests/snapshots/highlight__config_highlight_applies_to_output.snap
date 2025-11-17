@@ -1,0 +1,5 @@
+---
+source: tests/highlight.rs
+expression: result
+---
+foo/[36m{[0mbar[36m,[0mbaz[36m}[0m

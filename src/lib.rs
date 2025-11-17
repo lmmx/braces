@@ -13,6 +13,9 @@
 mod error;
 mod processor;
 
+#[cfg(feature = "cli")]
+pub mod highlight;
+
 pub use error::{BraceError, Result};
 pub use processor::expansion::expand_braces;
 pub use processor::ppb::pretty_braces;

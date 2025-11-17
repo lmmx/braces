@@ -1,0 +1,5 @@
+---
+source: tests/highlight.rs
+expression: result
+---
+src/[36m{[0mlib[36m,[0mmain[36m,[0mutil/[33m{[0mmod[33m,[0mhelpers[33m}[0m[36m,[0mtests/[33m{[0munit[33m,[0mintegration[33m}[0m[36m}[0m.rs

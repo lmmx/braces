@@ -129,6 +129,11 @@ pub struct BraceConfig {
     /// When `true`:
     /// - Input: `"a/{b,c}.rs"` → Expanded to `["a/b.rs", "a/c.rs"]` → Reprocessed
     pub reprocess_braces: bool,
+
+    /// Highlight braces with colors (default: `false`).
+    /// Only available with the `highlight` feature enabled.
+    #[cfg(feature = "highlight")]
+    pub highlight: bool,
 }
 
 impl Default for BraceConfig {
@@ -145,6 +150,8 @@ impl Default for BraceConfig {
             allow_mixed_separators: false,
             deduplicate_inputs: true,
             reprocess_braces: false,
+            #[cfg(feature = "highlight")]
+            highlight: false,
         }
     }
 }
@@ -207,7 +214,6 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
         paths.clone()
     };
 
-    // Build trie
     let (nodes, root_idx) = build_trie(&stripped_paths, &config.path_separator, config);
 
     // Compute representations
@@ -216,6 +222,11 @@ pub fn brace_paths(paths: &[impl AsRef<str>], config: &BraceConfig) -> Result<St
     let mut result = reprs.get(&root_idx).cloned().unwrap_or_default();
     if !common_suffix.is_empty() {
         result.push_str(&common_suffix);
+    }
+
+    #[cfg(feature = "cli")]
+    if config.highlight {
+        result = crate::highlight::highlight_braces(&result);
     }
 
     Ok(result)
