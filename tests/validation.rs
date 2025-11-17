@@ -51,7 +51,7 @@ fn test_deduplication_disabled() {
     };
     assert_braces(
         vec!["foo/bar.rs", "foo/bar.rs", "foo/baz.rs"],
-        "foo/{bar,bar,baz}",
+        "foo/{bar,bar,baz}.rs",
         &config,
     );
 }
