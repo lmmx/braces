@@ -24,6 +24,36 @@ fn strip_ansi(s: &str) -> String {
     result
 }
 
+/// Skip ANSI escape sequence and append to current line
+fn skip_ansi_sequence(chars: &mut std::iter::Peekable<std::str::Chars>, current_line: &mut String) {
+    current_line.push('\x1b');
+    current_line.push(chars.next().unwrap()); // '['
+    while let Some(&ch) = chars.peek() {
+        current_line.push(chars.next().unwrap());
+        if ch.is_ascii_alphabetic() {
+            break;
+        }
+    }
+}
+
+/// Flush current line to output if it has visible content
+fn flush_line_if_needed(output: &mut String, current_line: &mut String) {
+    let stripped = strip_ansi(current_line);
+    if !stripped.trim().is_empty() {
+        // Remove trailing comma if present
+        if let Some(pos) = current_line.trim_end().rfind(',') {
+            current_line.truncate(pos);
+        }
+        output.push_str(current_line);
+        output.push('\n');
+    }
+}
+
+/// Get indentation string for current stack depth
+fn get_indent(indent_stack: &[usize]) -> String {
+    " ".repeat(indent_stack.last().copied().unwrap_or(0))
+}
+
 /// Pretty-print a braces expression with indentation
 ///
 /// Takes a braces expression like `"a/{b,c/{d,e},f}"` and formats it with
@@ -54,14 +84,7 @@ pub fn pretty_braces(expr: &str) -> String {
     while let Some(c) = chars.next() {
         // Handle ANSI escape sequences
         if c == '\x1b' && chars.peek() == Some(&'[') {
-            current_line.push(c);
-            current_line.push(chars.next().unwrap()); // '['
-            while let Some(&ch) = chars.peek() {
-                current_line.push(chars.next().unwrap());
-                if ch.is_ascii_alphabetic() {
-                    break;
-                }
-            }
+            skip_ansi_sequence(&mut chars, &mut current_line);
             continue;
         }
 
@@ -72,20 +95,10 @@ pub fn pretty_braces(expr: &str) -> String {
                 output.push('\n');
 
                 indent_stack.push(strip_ansi(&current_line).len());
-                current_line = " ".repeat(*indent_stack.last().unwrap());
+                current_line = get_indent(&indent_stack);
             }
             '}' => {
-                // Flush current line if it has visible content
-                let stripped = strip_ansi(&current_line);
-                if !stripped.trim().is_empty() {
-                    // Remove trailing comma if present
-                    if current_line.trim_end().ends_with(',') {
-                        let trimmed_len = current_line.trim_end().len();
-                        current_line.truncate(trimmed_len - 1);
-                    }
-                    output.push_str(&current_line);
-                    output.push('\n');
-                }
+                flush_line_if_needed(&mut output, &mut current_line);
 
                 // Add closing brace
                 let indent = indent_stack.pop().unwrap_or(0).saturating_sub(1);
@@ -93,13 +106,13 @@ pub fn pretty_braces(expr: &str) -> String {
                 output.push('}');
                 output.push('\n');
 
-                current_line = " ".repeat(indent_stack.last().copied().unwrap_or(0));
+                current_line = get_indent(&indent_stack);
             }
             ',' => {
                 current_line.push(',');
                 output.push_str(&current_line);
                 output.push('\n');
-                current_line = " ".repeat(indent_stack.last().copied().unwrap_or(0));
+                current_line = get_indent(&indent_stack);
             }
             _ => {
                 current_line.push(c);
