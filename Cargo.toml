@@ -19,15 +19,14 @@ required-features = ["cli"]
 [features]
 default = []
 highlight = ["dep:anstream"]
-owo = ["dep:owo-colors"]
 
 cli = []
-cli-full = ["cli-highlight", "owo"]
+cli-full = ["cli-highlight"]
+
 cli-highlight = ["cli", "highlight"]
 
 [dependencies]
 anstream = { optional = true, version = "0.6" }
-owo-colors = { optional = true, version = "4" }
 
 [dev-dependencies]
 assert_cmd = "2"
