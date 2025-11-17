@@ -6,6 +6,11 @@ use std::io::{self, BufRead};
 fn main() {
     use braces::{brace_paths, pretty_braces, BraceConfig};
 
+    #[cfg(feature = "highlight")]
+    use anstream::println;
+    #[cfg(not(feature = "highlight"))]
+    use std::println;
+
     let args: Vec<String> = std::env::args().skip(1).collect();
 
     // Check for help
@@ -33,6 +38,8 @@ fn main() {
             "--reprocess" => config.reprocess_braces = true,
             "--allow-mixed-sep" => config.allow_mixed_separators = true,
             "--preserve-order" => config.preserve_order_within_braces = true,
+            #[cfg(feature = "highlight")]
+            "--highlight" => config.highlight = true,
             "--separator" => {
                 i += 1;
                 if i < args.len() {
@@ -98,11 +105,23 @@ fn main() {
 
     match brace_paths(&paths, &config) {
         Ok(result) => {
-            if pretty_print {
-                println!("{}", pretty_braces(&result));
+            let output = if pretty_print {
+                pretty_braces(&result)
             } else {
-                println!("{}", result);
-            }
+                result
+            };
+
+            #[cfg(feature = "highlight")]
+            let highlighted = if config.highlight {
+                braces::highlight::highlight_braces(&output)
+            } else {
+                output
+            };
+
+            #[cfg(not(feature = "highlight"))]
+            let highlighted = output;
+
+            println!("{}", highlighted);
         }
         Err(e) => {
             eprintln!("Error: {}", e);
@@ -121,13 +140,15 @@ fn print_help() {
     println!();
     println!("OPTIONS:");
     println!("    --pretty              Pretty-print the output with indentation");
+    #[cfg(feature = "highlight")]
+    println!("    --highlight           Highlight brace groups with colours");
     println!("    --sort                Sort items within braces");
     println!("    --stem-split          Enable stem-level character splitting");
     println!("    --no-segment-split    Disable segment splitting (no empty components)");
     println!("    --disallow-empty      Output separate paths instead of empty braces");
     println!("    --no-dedup            Don't remove duplicate paths");
     println!("    --reprocess           Expand and reprocess existing braces");
-    println!("    --allow-mixed-sep     Normalize mixed separators");
+    println!("    --allow-mixed-sep     Normalise mixed separators");
     println!("    --preserve-order      Sort within braces even when --sort not used");
     println!("    --separator SEP       Set path separator (default: /)");
     println!("    --max-depth N         Maximum brace nesting depth (default: 5)");
@@ -138,6 +159,8 @@ fn print_help() {
     println!("EXAMPLES:");
     println!("    braces foo/bar.rs foo/baz.rs");
     println!("    echo -e \"foo/bar.rs\\nfoo/baz.rs\" | braces --sort");
+    #[cfg(feature = "highlight")]
+    println!("    braces --highlight --pretty foo/{{bar,baz}}.rs");
 }
 
 #[cfg(not(feature = "cli"))]
