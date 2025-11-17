@@ -18,10 +18,16 @@ required-features = ["cli"]
 
 [features]
 default = []
-highlight = ["dep:anstream", "dep:owo_colors"]
+owo = ["dep:owo-colors"]
+highlight = ["dep:anstream"]
 
 cli = []
-cli-full = ["cli", "highlight"]
+cli-highlight = ["cli", "highlight"]
+cli-full = ["cli-highlight", "owo"]
+
+[dependencies]
+anstream = { version = "0.6", optional = true }
+owo-colors = { version = "4", optional = true }
 
 [dependencies]
 anstream = { version = "0.6", optional = true }
