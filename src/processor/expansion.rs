@@ -41,14 +41,16 @@ pub fn compute_reprs(
         let mut child_raws = vec![];
 
         for (child_label, child_idx) in node.children.iter() {
-            // Extract just the String part of the (String, usize) key
             let label_str = &child_label.0;
+
+            // Get the child's representation if it exists, otherwise use the label
             child_repr_items.push(
                 reprs
                     .get(child_idx)
                     .cloned()
                     .unwrap_or_else(|| label_str.clone()),
             );
+
             if let Some(r) = raw_leaves.get(child_idx) {
                 child_raws.extend(r.clone());
             } else {
@@ -74,7 +76,12 @@ pub fn compute_reprs(
                     out.push(format!("{}{}{}", node.label, sep, r));
                 }
             }
-            if node.is_leaf {
+            // Don't add node.label again if we already have a trailing sep child
+            let has_trailing_sep_child = node
+                .children
+                .iter()
+                .any(|(_, child_idx)| nodes[*child_idx].is_trailing_sep);
+            if node.is_leaf && !has_trailing_sep_child {
                 out.push(node.label.clone())
             }
             out
@@ -115,9 +122,21 @@ pub fn compute_reprs(
             }
         } else {
             let mut items = child_repr_items.clone();
-            if node.is_leaf {
+
+            // Only add empty string if this node is a leaf AND doesn't have a trailing sep child
+            let has_trailing_sep_child = node
+                .children
+                .iter()
+                .any(|(_, child_idx)| nodes[*child_idx].is_trailing_sep);
+
+            // Add empty string for leaf nodes that don't have trailing sep children
+            // This represents the case where path ends at this node (e.g., "a" in ["a", "a/b"])
+            if node.is_leaf && !node.is_trailing_sep && !has_trailing_sep_child {
                 items.push(String::new())
             }
+
+            // For nodes with trailing sep children, the empty string is already in items
+            // from the child processing above
 
             if config.disallow_empty_braces && items.iter().any(|s| s.is_empty()) && items.len() > 1
             {
@@ -181,8 +200,16 @@ fn compose_label_and_items(
     }
 
     let compose_inner = |slice: &[String]| {
-        if slice.len() == 1 {
-            slice[0].clone()
+        // Handle empty slice
+        if slice.is_empty() {
+            String::new()
+        } else if slice.len() == 1 {
+            // Don't wrap single empty strings in braces
+            if slice[0].is_empty() {
+                String::new()
+            } else {
+                slice[0].clone()
+            }
         } else {
             format!("{{{}}}", slice.join(","))
         }
@@ -193,7 +220,13 @@ fn compose_label_and_items(
             if label.is_empty() {
                 compose_inner(&cleaned)
             } else {
-                format!("{}{}{}", label, sep, compose_inner(&cleaned))
+                // Don't add separator if inner is empty
+                let inner = compose_inner(&cleaned);
+                if inner.is_empty() {
+                    label.to_string()
+                } else {
+                    format!("{}{}{}", label, sep, inner)
+                }
             }
         } else {
             let mut groups = vec![];
@@ -201,7 +234,13 @@ fn compose_label_and_items(
                 if label.is_empty() {
                     groups.push(compose_inner(chunk))
                 } else {
-                    groups.push(format!("{}{}{}", label, sep, compose_inner(chunk)))
+                    // Apply same fix here
+                    let inner = compose_inner(chunk);
+                    if inner.is_empty() {
+                        groups.push(label.to_string())
+                    } else {
+                        groups.push(format!("{}{}{}", label, sep, inner))
+                    }
                 }
             }
             format!("{{{}}}", groups.join(","))
@@ -209,27 +248,12 @@ fn compose_label_and_items(
     } else if label.is_empty() {
         compose_inner(&cleaned)
     } else {
-        // Handle empty strings properly
-        let has_empty = cleaned.iter().any(|s| s.is_empty());
-        if has_empty && cleaned.len() > 1 {
-            // When we have empty alternatives, format them correctly
-            // Empty means just the label (e.g., "a/")
-            // Non-empty means label + sep + item (e.g., "a/b")
-            let formatted: Vec<String> = cleaned
-                .iter()
-                .map(|s| {
-                    if s.is_empty() {
-                        String::new()
-                    } else {
-                        format!("{}{}", sep, s)
-                    }
-                })
-                .collect();
-            format!("{}{}", label, compose_inner(&formatted))
-        } else if cleaned.len() == 1 && cleaned[0].is_empty() {
+        // Don't add separator if inner is empty
+        let inner = compose_inner(&cleaned);
+        if inner.is_empty() {
             label.to_string()
         } else {
-            format!("{}{}{}", label, sep, compose_inner(&cleaned))
+            format!("{}{}{}", label, sep, inner)
         }
     }
 }

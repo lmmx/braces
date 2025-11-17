@@ -10,5 +10,5 @@ fn test_max_brace_size() {
         ..Default::default()
     };
     // Should split into multiple braces
-    assert_braces(vec!["a/b", "a/c", "a/d"], "{a/{b/,c/},a/d/}", &config);
+    assert_braces(vec!["a/b", "a/c", "a/d"], "{a/{b,c},a/d}", &config);
 }

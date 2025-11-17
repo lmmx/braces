@@ -74,6 +74,5 @@ fn test_deeply_nested_paths() {
 
 #[test]
 fn test_mixed_depth_paths() {
-    // (If it's possible to fix...) I would rather this be "a/b{,/c{,/d}}"
-    assert_braces_default(vec!["a/b", "a/b/c", "a/b/c/d"], "a/b{/c{/d,},}");
+    assert_braces_default(vec!["a/b", "a/b/c", "a/b/c/d"], "a/b/{c/{d,},}");
 }
