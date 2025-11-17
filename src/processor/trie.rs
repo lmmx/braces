@@ -51,8 +51,16 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
 
         let mut cur = 0;
         for (i, comp) in comps.iter().enumerate() {
-            let key = (comp.clone(), next_id);
-            next_id += 1;
+            let is_last = i + 1 == comps.len();
+
+            // Only add unique ID if not deduplicating AND this is the last component
+            let key = if !config.deduplicate_inputs && is_last {
+                let id = next_id;
+                next_id += 1;
+                (comp.clone(), id)
+            } else {
+                (comp.clone(), 0) // Use 0 as a dummy ID for non-leaf nodes
+            };
 
             let child_idx = if let Some(&idx) = nodes[cur].children.get(&key) {
                 idx
@@ -68,7 +76,7 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
                 idx
             };
             cur = child_idx;
-            if i + 1 == comps.len() {
+            if is_last {
                 nodes[cur].is_leaf = true;
             }
         }
