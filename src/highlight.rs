@@ -15,18 +15,18 @@ pub fn highlight_braces(text: &str) -> String {
         match ch {
             '{' => {
                 let color = BRACE_COLORS[depth % BRACE_COLORS.len()];
-                result.push_str(&format!("{}", ch.color(color)));
+                result.push_str(&ch.color(color).to_string());
                 depth += 1;
             }
             '}' => {
                 depth = depth.saturating_sub(1);
                 let color = BRACE_COLORS[depth % BRACE_COLORS.len()];
-                result.push_str(&format!("{}", ch.color(color)));
+                result.push_str(&ch.color(color).to_string());
             }
             ',' => {
                 if depth > 0 {
                     let color = BRACE_COLORS[(depth - 1) % BRACE_COLORS.len()];
-                    result.push_str(&format!("{}", ch.color(color)));
+                    result.push_str(&ch.color(color).to_string());
                 } else {
                     result.push(ch);
                 }
