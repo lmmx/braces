@@ -1,9 +1,10 @@
+// src/cli.rs
 #[cfg(feature = "cli")]
 use std::io::{self, BufRead};
 
 #[cfg(feature = "cli")]
 fn main() {
-    use braces::{brace_paths, BraceConfig};
+    use braces::{brace_paths, pretty_braces, BraceConfig};
 
     let args: Vec<String> = std::env::args().skip(1).collect();
 
@@ -16,11 +17,13 @@ fn main() {
     // Parse config from args
     let mut config = BraceConfig::default();
     let mut paths = Vec::new();
+    let mut pretty_print = false;
     let mut i = 0;
 
     while i < args.len() {
         let arg = &args[i];
         match arg.as_str() {
+            "--pretty" => pretty_print = true,
             "--sort" => config.sort_items = true,
             "--stem-split" => config.allow_stem_split = true,
             "--no-segment-split" => config.allow_segment_split = false,
@@ -80,7 +83,13 @@ fn main() {
     }
 
     match brace_paths(&paths, &config) {
-        Ok(result) => println!("{}", result),
+        Ok(result) => {
+            if pretty_print {
+                println!("{}", pretty_braces(&result));
+            } else {
+                println!("{}", result);
+            }
+        }
         Err(e) => {
             eprintln!("Error: {}", e);
             std::process::exit(1);
@@ -97,18 +106,19 @@ fn print_help() {
     println!("    echo -e \"path1\\npath2\" | braces [OPTIONS]");
     println!();
     println!("OPTIONS:");
-    println!("    --sort                  Sort items within braces");
-    println!("    --stem-split           Enable stem-level character splitting");
-    println!("    --no-segment-split     Disable segment splitting (no empty components)");
-    println!("    --disallow-empty       Output separate paths instead of empty braces");
-    println!("    --no-dedup             Don't remove duplicate paths");
-    println!("    --reprocess            Expand and reprocess existing braces");
-    println!("    --allow-mixed-sep      Normalize mixed separators");
-    println!("    --preserve-order       Sort within braces even when --sort not used");
-    println!("    --separator SEP        Set path separator (default: /)");
-    println!("    --max-depth N          Maximum brace nesting depth (default: 5)");
-    println!("    --max-brace-size N     Maximum items per brace");
-    println!("    -h, --help             Print this help message");
+    println!("    --pretty              Pretty-print the output with indentation");
+    println!("    --sort                Sort items within braces");
+    println!("    --stem-split          Enable stem-level character splitting");
+    println!("    --no-segment-split    Disable segment splitting (no empty components)");
+    println!("    --disallow-empty      Output separate paths instead of empty braces");
+    println!("    --no-dedup            Don't remove duplicate paths");
+    println!("    --reprocess           Expand and reprocess existing braces");
+    println!("    --allow-mixed-sep     Normalize mixed separators");
+    println!("    --preserve-order      Sort within braces even when --sort not used");
+    println!("    --separator SEP       Set path separator (default: /)");
+    println!("    --max-depth N         Maximum brace nesting depth (default: 5)");
+    println!("    --max-brace-size N    Maximum items per brace");
+    println!("    -h, --help            Print this help message");
     println!();
     println!("EXAMPLES:");
     println!("    braces foo/bar.rs foo/baz.rs");
