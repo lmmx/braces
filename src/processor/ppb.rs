@@ -82,7 +82,7 @@ pub fn pretty_braces(expr: &str) -> String {
     let mut chars = expr.chars().peekable();
 
     while let Some(c) = chars.next() {
-        // Handle ANSI escape sequences
+        // Preserve but skip over ANSI color codes
         if c == '\x1b' && chars.peek() == Some(&'[') {
             skip_ansi_sequence(&mut chars, &mut current_line);
             continue;
@@ -90,6 +90,7 @@ pub fn pretty_braces(expr: &str) -> String {
 
         match c {
             '{' => {
+                // Opening brace: output current line and increase indent
                 current_line.push('{');
                 output.push_str(&current_line);
                 output.push('\n');
@@ -98,9 +99,9 @@ pub fn pretty_braces(expr: &str) -> String {
                 current_line = get_indent(&indent_stack);
             }
             '}' => {
+                // Closing brace: flush pending content and decrease indent
                 flush_line_if_needed(&mut output, &mut current_line);
 
-                // Add closing brace
                 let indent = indent_stack.pop().unwrap_or(0).saturating_sub(1);
                 output.push_str(&" ".repeat(indent));
                 output.push('}');
@@ -109,6 +110,7 @@ pub fn pretty_braces(expr: &str) -> String {
                 current_line = get_indent(&indent_stack);
             }
             ',' => {
+                // Comma: output current item and start new line at same indent
                 current_line.push(',');
                 output.push_str(&current_line);
                 output.push('\n');
@@ -120,11 +122,11 @@ pub fn pretty_braces(expr: &str) -> String {
         }
     }
 
-    // Flush any remaining content
+    // Handle any remaining content
     if !strip_ansi(&current_line).trim().is_empty() {
         output.push_str(&current_line);
     } else if output.ends_with('\n') {
-        output.pop(); // Remove trailing newline
+        output.pop();
     }
 
     output
