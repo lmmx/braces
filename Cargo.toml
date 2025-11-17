@@ -21,6 +21,7 @@ cli = []
 default = []
 
 [dev-dependencies]
+insta = "1.43.2"
 
 [profile.release]
 lto = true

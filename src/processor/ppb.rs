@@ -95,39 +95,68 @@ pub fn pretty_braces(expr: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_snapshot;
 
     #[test]
     fn test_simple_braces() {
         let input = "{a,b,c}";
-        let expected = "{\n  a,\n  b,\n  c\n}";
-        assert_eq!(pretty_braces(input), expected);
+        assert_snapshot!(pretty_braces(input), @r"
+        {
+         a,
+         b,
+         c
+        }
+        ");
     }
 
     #[test]
     fn test_nested_braces() {
         let input = "foo/{bar,baz/{qux,quux}}";
-        let expected = "foo/{\n  bar,\n  baz/{\n    qux,\n    quux\n  }\n}";
-        assert_eq!(pretty_braces(input), expected);
+        assert_snapshot!(pretty_braces(input), @r"
+        foo/{
+             bar,
+             baz/{
+                  qux,
+                  quux
+                 }
+            }
+        ");
     }
 
     #[test]
     fn test_empty_braces() {
         let input = "a/{}";
-        let expected = "a/{\n}";
-        assert_eq!(pretty_braces(input), expected);
+        assert_snapshot!(pretty_braces(input), @r"
+        a/{
+          }
+        ");
     }
 
     #[test]
     fn test_multiple_levels() {
         let input = "{a/{b,c},d/{e/{f,g},h}}";
-        let expected = "{\n  a/{\n    b,\n    c\n  },\n  d/{\n    e/{\n      f,\n      g\n    },\n    h\n  }\n}";
-        assert_eq!(pretty_braces(input), expected);
+        assert_snapshot!(pretty_braces(input), @r"
+        {
+         a/{
+            b,
+            c
+           }
+         ,
+         d/{
+            e/{
+               f,
+               g
+              }
+            ,
+            h
+           }
+        }
+        ");
     }
 
     #[test]
     fn test_no_braces() {
         let input = "simple/path/file.txt";
-        let expected = "simple/path/file.txt";
-        assert_eq!(pretty_braces(input), expected);
+        assert_snapshot!(pretty_braces(input), @"simple/path/file.txt");
     }
 }
