@@ -1,14 +1,10 @@
 //! Syntax highlighting for brace expressions
 
-use owo_colors::{colors::*, OwoColorize};
+mod ansi;
 
-const BRACE_COLORS: &[&dyn owo_colors::DynColor] = &[
-    &Cyan,
-    &Yellow,
-    &Magenta,
-    &Green,
-    &Blue,
-];
+use ansi::{Highlight, BLUE, CYAN, GREEN, MAGENTA, YELLOW};
+
+const BRACE_COLORS: &[ansi::Color] = &[CYAN, YELLOW, MAGENTA, GREEN, BLUE];
 
 /// Highlight braces in the output with cycling colors per nesting level
 pub fn highlight_braces(text: &str) -> String {
@@ -19,19 +15,18 @@ pub fn highlight_braces(text: &str) -> String {
         match ch {
             '{' => {
                 let color = BRACE_COLORS[depth % BRACE_COLORS.len()];
-                result.push_str(&format!("{}", ch.color(*color)));
+                result.push_str(&ch.color(color));
                 depth += 1;
             }
             '}' => {
                 depth = depth.saturating_sub(1);
                 let color = BRACE_COLORS[depth % BRACE_COLORS.len()];
-                result.push_str(&format!("{}", ch.color(*color)));
+                result.push_str(&ch.color(color));
             }
             ',' => {
-                // Optionally color commas to match their brace group level
                 if depth > 0 {
                     let color = BRACE_COLORS[(depth - 1) % BRACE_COLORS.len()];
-                    result.push_str(&format!("{}", ch.color(*color)));
+                    result.push_str(&ch.color(color));
                 } else {
                     result.push(ch);
                 }
