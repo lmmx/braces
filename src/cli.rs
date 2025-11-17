@@ -111,17 +111,7 @@ fn main() {
                 result
             };
 
-            #[cfg(feature = "highlight")]
-            let highlighted = if config.highlight {
-                braces::highlight::highlight_braces(&output)
-            } else {
-                output
-            };
-
-            #[cfg(not(feature = "highlight"))]
-            let highlighted = output;
-
-            println!("{}", highlighted);
+            println!("{}", output);
         }
         Err(e) => {
             eprintln!("Error: {}", e);
