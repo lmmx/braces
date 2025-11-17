@@ -61,12 +61,7 @@ fn config_highlight_pretty_deep_nesting() {
         highlight: true,
         ..Default::default()
     };
-    let result = brace_paths(&[
-        "a/b/c/d/1",
-        "a/b/c/d/2",
-        "a/b/c/e/3",
-        "a/b/f/4"
-    ], &config).unwrap();
+    let result = brace_paths(&["a/b/c/d/1", "a/b/c/d/2", "a/b/c/e/3", "a/b/f/4"], &config).unwrap();
     let pretty = pretty_braces(&result);
 
     insta::assert_snapshot!(pretty, @r###"
@@ -109,14 +104,18 @@ fn config_highlight_complex_real_world() {
         highlight: true,
         ..Default::default()
     };
-    let result = brace_paths(&[
-        "src/lib.rs",
-        "src/main.rs",
-        "src/util/mod.rs",
-        "src/util/helpers.rs",
-        "src/tests/unit.rs",
-        "src/tests/integration.rs"
-    ], &config).unwrap();
+    let result = brace_paths(
+        &[
+            "src/lib.rs",
+            "src/main.rs",
+            "src/util/mod.rs",
+            "src/util/helpers.rs",
+            "src/tests/unit.rs",
+            "src/tests/integration.rs",
+        ],
+        &config,
+    )
+    .unwrap();
 
     insta::assert_snapshot!(result, @"src/\u{1b}[36m{\u{1b}[0m\u{1b}[36mlib\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36mmain\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[33m{\u{1b}[0m\u{1b}[33mutil/\u{1b}[0m\u{1b}[35m{\u{1b}[0m\u{1b}[35mmod\u{1b}[0m\u{1b}[35m,\u{1b}[0m\u{1b}[35mhelpers\u{1b}[0m\u{1b}[35m}\u{1b}[0m\u{1b}[33m,\u{1b}[0m\u{1b}[33mtests/\u{1b}[0m\u{1b}[35m{\u{1b}[0m\u{1b}[35munit\u{1b}[0m\u{1b}[35m,\u{1b}[0m\u{1b}[35mintegration\u{1b}[0m\u{1b}[35m}\u{1b}[0m\u{1b}[33m}\u{1b}[0m\u{1b}[36m}\u{1b}[0m.rs");
 }
@@ -127,14 +126,18 @@ fn config_highlight_pretty_complex_real_world() {
         highlight: true,
         ..Default::default()
     };
-    let result = brace_paths(&[
-        "src/lib.rs",
-        "src/main.rs",
-        "src/util/mod.rs",
-        "src/util/helpers.rs",
-        "src/tests/unit.rs",
-        "src/tests/integration.rs"
-    ], &config).unwrap();
+    let result = brace_paths(
+        &[
+            "src/lib.rs",
+            "src/main.rs",
+            "src/util/mod.rs",
+            "src/util/helpers.rs",
+            "src/tests/unit.rs",
+            "src/tests/integration.rs",
+        ],
+        &config,
+    )
+    .unwrap();
     let pretty = pretty_braces(&result);
 
     insta::assert_snapshot!(pretty, @r###"

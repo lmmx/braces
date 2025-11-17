@@ -91,3 +91,30 @@ fn test_only_braces() {
     let output = highlight_braces(input);
     insta::assert_snapshot!(output, @"\u{1b}[36m{\u{1b}[0m\u{1b}[36m}\u{1b}[0m");
 }
+
+#[test]
+fn test_null_delimited_input() {
+    let input = "you/pulled/off\0your/only\0your/\ntrick";
+    let output = braces::brace_paths(
+        &["you/pulled/off", "your/only", "your/\ntrick"],
+        &braces::BraceConfig::default(),
+    )
+    .unwrap();
+    insta::assert_snapshot!(output, @"{you/pulled/off,your/{only,\ntrick}}");
+}
+
+#[test]
+fn test_null_delimited_simple() {
+    let input = "a/b\0a/c\0a/d";
+    let paths: Vec<&str> = input.split('\0').collect();
+    let output = braces::brace_paths(&paths, &braces::BraceConfig::default()).unwrap();
+    insta::assert_snapshot!(output, @"a/{b,c,d}");
+}
+
+#[test]
+fn test_null_delimited_with_newlines() {
+    // Paths that contain actual newlines should be preserved literally
+    let paths = vec!["path/with\nnewline", "path/with\ntab", "path/normal"];
+    let output = braces::brace_paths(&paths, &braces::BraceConfig::default()).unwrap();
+    insta::assert_snapshot!(output, @"path/{with\nnewline,with\ntab,normal}");
+}

@@ -18,20 +18,20 @@ required-features = ["cli"]
 
 [features]
 default = []
-owo = ["dep:owo-colors"]
 highlight = ["dep:anstream"]
+owo = ["dep:owo-colors"]
 
 cli = []
-cli-highlight = ["cli", "highlight"]
 cli-full = ["cli-highlight", "owo"]
+cli-highlight = ["cli", "highlight"]
 
 [dependencies]
-anstream = { version = "0.6", optional = true }
-owo-colors = { version = "4", optional = true }
+anstream = { optional = true, version = "0.6" }
+owo-colors = { optional = true, version = "4" }
 
 [dev-dependencies]
-insta = "1.43.2"
 assert_cmd = "2"
+insta = "1.43.2"
 
 [profile.release]
 lto = true
