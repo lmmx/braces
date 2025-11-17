@@ -18,6 +18,7 @@ fn main() {
     let mut config = BraceConfig::default();
     let mut paths = Vec::new();
     let mut pretty_print = false;
+    let mut read_null = false;
     let mut i = 0;
 
     while i < args.len() {
@@ -54,6 +55,7 @@ fn main() {
                     }
                 }
             }
+            "-0" | "--null" => read_null = true,
             _ if arg.starts_with("--") => {
                 eprintln!("Error: Unknown option: {}", arg);
                 print_help();
@@ -69,10 +71,22 @@ fn main() {
     // Read from stdin if no paths provided
     if paths.is_empty() {
         let stdin = io::stdin();
-        for line in stdin.lock().lines().map_while(Result::ok) {
-            let path = line.trim();
-            if !path.is_empty() {
-                paths.push(path.to_string());
+        let handle = stdin.lock();
+        if read_null {
+            // NUL-delimited input
+            for chunk in handle.split(0).map_while(Result::ok) {
+                if !chunk.is_empty() {
+                    // No trimming, take NUL-terminated paths literally
+                    let path = String::from_utf8_lossy(&chunk).into_owned();
+                    paths.push(path);
+                }
+            }
+        } else {
+            // Newline-delimited input (`\n` or `\r\n`)
+            for line in handle.lines().map_while(Result::ok) {
+                if !line.is_empty() {
+                    paths.push(line.to_string());
+                }
             }
         }
     }
@@ -118,6 +132,7 @@ fn print_help() {
     println!("    --separator SEP       Set path separator (default: /)");
     println!("    --max-depth N         Maximum brace nesting depth (default: 5)");
     println!("    --max-brace-size N    Maximum items per brace");
+    println!("    -0, --null            Read NUL-separated input (like xargs -0)");
     println!("    -h, --help            Print this help message");
     println!();
     println!("EXAMPLES:");
