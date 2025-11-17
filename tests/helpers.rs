@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use braces::{brace_paths, BraceConfig};
 
 /// Test that paths produce expected brace output
