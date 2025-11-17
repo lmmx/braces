@@ -1,9 +1,7 @@
 //! Syntax highlighting for brace expressions
 
-#[cfg(feature = "highlight")]
 use owo_colors::{colors::*, OwoColorize};
 
-#[cfg(feature = "highlight")]
 const BRACE_COLORS: &[&dyn owo_colors::DynColor] = &[
     &Cyan,
     &Yellow,
@@ -13,7 +11,6 @@ const BRACE_COLORS: &[&dyn owo_colors::DynColor] = &[
 ];
 
 /// Highlight braces in the output with cycling colors per nesting level
-#[cfg(feature = "highlight")]
 pub fn highlight_braces(text: &str) -> String {
     let mut result = String::new();
     let mut depth = 0;
@@ -44,10 +41,4 @@ pub fn highlight_braces(text: &str) -> String {
     }
 
     result
-}
-
-/// No-op version when highlight feature is disabled
-#[cfg(not(feature = "highlight"))]
-pub fn highlight_braces(text: &str) -> String {
-    text.to_string()
 }
