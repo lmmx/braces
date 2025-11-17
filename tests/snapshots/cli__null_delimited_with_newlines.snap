@@ -1,0 +1,7 @@
+---
+source: tests/cli.rs
+expression: output
+---
+path/{with
+newline,with
+tab,normal}

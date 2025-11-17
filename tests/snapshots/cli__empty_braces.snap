@@ -1,0 +1,5 @@
+---
+source: tests/cli.rs
+expression: output
+---
+a/b[36m{[0m[36m,[0m/c[36m}[0m

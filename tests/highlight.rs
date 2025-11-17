@@ -10,7 +10,7 @@ fn config_highlight_applies_to_output() {
     };
     let result = brace_paths(&["foo/bar", "foo/baz"], &config).unwrap();
 
-    insta::assert_snapshot!(result, @"foo/\u{1b}[36m{\u{1b}[0m\u{1b}[36mbar\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36mbaz\u{1b}[0m\u{1b}[36m}\u{1b}[0m");
+    insta::assert_snapshot!(result);
 }
 
 #[test]
@@ -32,7 +32,7 @@ fn config_highlight_with_nesting() {
     };
     let result = brace_paths(&["a/b/c/1", "a/b/c/2", "a/b/d/3"], &config).unwrap();
 
-    insta::assert_snapshot!(result, @"a/b/\u{1b}[36m{\u{1b}[0m\u{1b}[36mc/\u{1b}[0m\u{1b}[33m{\u{1b}[0m\u{1b}[33m1\u{1b}[0m\u{1b}[33m,\u{1b}[0m\u{1b}[33m2\u{1b}[0m\u{1b}[33m}\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36md/3\u{1b}[0m\u{1b}[36m}\u{1b}[0m");
+    insta::assert_snapshot!(result);
 }
 
 #[test]
@@ -44,15 +44,7 @@ fn config_highlight_with_pretty() {
     let result = brace_paths(&["foo/bar/1", "foo/bar/2", "foo/baz/3"], &config).unwrap();
     let pretty = pretty_braces(&result);
 
-    insta::assert_snapshot!(pretty, @r###"
-    foo/\u{1b}[36m{\u{1b}[0m
-      \u{1b}[36mbar/\u{1b}[0m\u{1b}[33m{\u{1b}[0m
-        \u{1b}[33m1\u{1b}[0m\u{1b}[33m,\u{1b}[0m
-        \u{1b}[33m2\u{1b}[0m
-      \u{1b}[33m}\u{1b}[0m\u{1b}[36m,\u{1b}[0m
-      \u{1b}[36mbaz/3\u{1b}[0m
-    \u{1b}[36m}\u{1b}[0m
-    "###);
+    insta::assert_snapshot!(pretty);
 }
 
 #[test]
@@ -64,18 +56,7 @@ fn config_highlight_pretty_deep_nesting() {
     let result = brace_paths(&["a/b/c/d/1", "a/b/c/d/2", "a/b/c/e/3", "a/b/f/4"], &config).unwrap();
     let pretty = pretty_braces(&result);
 
-    insta::assert_snapshot!(pretty, @r###"
-    a/b/\u{1b}[36m{\u{1b}[0m
-      \u{1b}[36mc/\u{1b}[0m\u{1b}[33m{\u{1b}[0m
-        \u{1b}[33md/\u{1b}[0m\u{1b}[35m{\u{1b}[0m
-          \u{1b}[35m1\u{1b}[0m\u{1b}[35m,\u{1b}[0m
-          \u{1b}[35m2\u{1b}[0m
-        \u{1b}[35m}\u{1b}[0m\u{1b}[33m,\u{1b}[0m
-        \u{1b}[33me/3\u{1b}[0m
-      \u{1b}[33m}\u{1b}[0m\u{1b}[36m,\u{1b}[0m
-      \u{1b}[36mf/4\u{1b}[0m
-    \u{1b}[36m}\u{1b}[0m
-    "###);
+    insta::assert_snapshot!(pretty);
 }
 
 #[test]
@@ -87,15 +68,16 @@ fn config_no_highlight_with_pretty() {
     let result = brace_paths(&["foo/bar/1", "foo/bar/2", "foo/baz/3"], &config).unwrap();
     let pretty = pretty_braces(&result);
 
-    insta::assert_snapshot!(pretty, @r###"
+    insta::assert_snapshot!(pretty, @r"
     foo/{
-      bar/{
-        1,
-        2
-      },
-      baz/3
-    }
-    "###);
+         bar/{
+              1,
+              2
+             }
+         ,
+         baz/3
+        }
+    ");
 }
 
 #[test]
@@ -117,7 +99,7 @@ fn config_highlight_complex_real_world() {
     )
     .unwrap();
 
-    insta::assert_snapshot!(result, @"src/\u{1b}[36m{\u{1b}[0m\u{1b}[36mlib\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36mmain\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[33m{\u{1b}[0m\u{1b}[33mutil/\u{1b}[0m\u{1b}[35m{\u{1b}[0m\u{1b}[35mmod\u{1b}[0m\u{1b}[35m,\u{1b}[0m\u{1b}[35mhelpers\u{1b}[0m\u{1b}[35m}\u{1b}[0m\u{1b}[33m,\u{1b}[0m\u{1b}[33mtests/\u{1b}[0m\u{1b}[35m{\u{1b}[0m\u{1b}[35munit\u{1b}[0m\u{1b}[35m,\u{1b}[0m\u{1b}[35mintegration\u{1b}[0m\u{1b}[35m}\u{1b}[0m\u{1b}[33m}\u{1b}[0m\u{1b}[36m}\u{1b}[0m.rs");
+    insta::assert_snapshot!(result);
 }
 
 #[test]
@@ -140,22 +122,7 @@ fn config_highlight_pretty_complex_real_world() {
     .unwrap();
     let pretty = pretty_braces(&result);
 
-    insta::assert_snapshot!(pretty, @r###"
-    src/\u{1b}[36m{\u{1b}[0m
-      \u{1b}[36mlib\u{1b}[0m\u{1b}[36m,\u{1b}[0m
-      \u{1b}[36mmain\u{1b}[0m\u{1b}[36m,\u{1b}[0m
-      \u{1b}[33m{\u{1b}[0m
-        \u{1b}[33mutil/\u{1b}[0m\u{1b}[35m{\u{1b}[0m
-          \u{1b}[35mmod\u{1b}[0m\u{1b}[35m,\u{1b}[0m
-          \u{1b}[35mhelpers\u{1b}[0m
-        \u{1b}[35m}\u{1b}[0m\u{1b}[33m,\u{1b}[0m
-        \u{1b}[33mtests/\u{1b}[0m\u{1b}[35m{\u{1b}[0m
-          \u{1b}[35munit\u{1b}[0m\u{1b}[35m,\u{1b}[0m
-          \u{1b}[35mintegration\u{1b}[0m
-        \u{1b}[35m}\u{1b}[0m
-      \u{1b}[33m}\u{1b}[0m
-    \u{1b}[36m}\u{1b}[0m.rs
-    "###);
+    insta::assert_snapshot!(pretty);
 }
 
 #[test]
@@ -167,7 +134,7 @@ fn config_highlight_with_sorting() {
     };
     let result = brace_paths(&["z/c", "z/a", "z/b"], &config).unwrap();
 
-    insta::assert_snapshot!(result, @"z/\u{1b}[36m{\u{1b}[0m\u{1b}[36ma\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36mc\u{1b}[0m\u{1b}[36m}\u{1b}[0m");
+    insta::assert_snapshot!(result);
 }
 
 #[test]
@@ -178,5 +145,5 @@ fn config_highlight_with_empty_braces() {
     };
     let result = brace_paths(&["a/b", "a/b/c"], &config).unwrap();
 
-    insta::assert_snapshot!(result, @"a/b\u{1b}[36m{\u{1b}[0m\u{1b}[36m,\u{1b}[0m\u{1b}[36m/c\u{1b}[0m\u{1b}[36m}\u{1b}[0m");
+    insta::assert_snapshot!(result);
 }

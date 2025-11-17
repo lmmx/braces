@@ -1,0 +1,5 @@
+---
+source: tests/highlight.rs
+expression: result
+---
+a/b/[36m{[0mc[36m,[0m[36m}[0m

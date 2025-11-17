@@ -1,0 +1,6 @@
+---
+source: tests/cli.rs
+expression: output
+---
+{you/pulled/off,your/{only,
+trick}}
