@@ -49,12 +49,8 @@ pub fn pretty_braces(expr: &str) -> String {
                 if !line.trim().is_empty() {
                     // Remove trailing comma if present
                     let trimmed = line.trim_end();
-                    if trimmed.ends_with(',') {
-                        line = format!(
-                            "{}{}",
-                            &trimmed[..trimmed.len() - 1],
-                            " ".repeat(line.len() - trimmed.len())
-                        );
+                    if let Some(stripped) = trimmed.strip_suffix(',') {
+                        line = format!("{}{}", stripped, " ".repeat(line.len() - trimmed.len()));
                     }
                     lines.push(line);
                 }
