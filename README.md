@@ -79,7 +79,7 @@ assert_eq!(result, "a/b/{c/{1,2},d/3}");
 ```
 
 ## CLI Usage
-```bash
+````bash
 # From arguments
 braces foo/bar.rs foo/baz.rs
 # Output: foo/{bar,baz}.rs
@@ -90,7 +90,34 @@ echo -e "foo/bar.rs\nfoo/baz.rs" | braces
 
 # With options
 braces --sort --stem-split foo/bar.rs foo/baz.rs
+
+# With syntax highlighting (requires highlight feature)
+braces --highlight --pretty foo/bar.rs foo/baz.rs
+````
+
+### CLI Options
+
+```bash
+braces [OPTIONS] [PATHS...]
 ```
+
+| Option | Description |
+|--------|-------------|
+| `--pretty` | Pretty-print the output with indentation |
+| `--highlight` | Highlight brace groups with colors (requires `highlight` feature) |
+| `--sort` | Sort items within braces alphabetically |
+| `--stem-split` | Enable stem-level character splitting |
+| `--no-segment-split` | Disable segment splitting (no empty components) |
+| `--disallow-empty` | Output separate paths instead of empty braces |
+| `--no-dedup` | Don't remove duplicate paths |
+| `--reprocess` | Expand and reprocess existing braces |
+| `--allow-mixed-sep` | Normalize mixed separators |
+| `--preserve-order` | Maintain exact input order within braces |
+| `--separator SEP` | Set path separator (default: `/`) |
+| `--max-depth N` | Maximum brace nesting depth (default: `5`) |
+| `--max-brace-size N` | Maximum items per brace group |
+| `-0, --null` | Read NUL-separated input (like `xargs -0`) |
+| `-h, --help` | Print help message |
 
 ## Configuration
 
@@ -109,16 +136,45 @@ braces --sort --stem-split foo/bar.rs foo/baz.rs
 | `allow_mixed_separators` | `bool` | `false` | Normalize different separators to `path_separator` |
 | `deduplicate_inputs` | `bool` | `true` | Remove duplicate paths before processing |
 | `reprocess_braces` | `bool` | `false` | Expand and reprocess existing braces syntax |
+| `highlight` | `bool` | `false` | Highlight braces with colors (requires `highlight` feature) |
 
 ## Installation
+
+Add to your project:
 ```bash
 cargo add braces
 ```
 
-Or install the CLI:
+The easiest way to install the CLI is via [cargo binstall][cbin] (which pulls pre-built binaries from the [release][ghr]).
+
+[cbin]: https://github.com/cargo-bins/cargo-binstall
+[ghr]: https://github.com/lmmx/braces/releases
+
 ```bash
-cargo install braces --features cli
+cargo binstall braces
 ```
+
+To build it yourself:
+
+```bash
+# Basic CLI
+cargo install braces --features cli
+
+# CLI with syntax highlighting
+cargo install braces --features cli-highlight
+
+# CLI with all features
+cargo install braces --features cli-full
+```
+
+### Features
+
+The crate supports the following feature flags:
+
+- `cli` - Enables the command-line interface
+- `highlight` - Enables syntax highlighting for brace output
+- `cli-highlight` - Convenience feature enabling both `cli` and `highlight`
+- `cli-full` - Alias for `cli-highlight` with all CLI features
 
 ## License
 
