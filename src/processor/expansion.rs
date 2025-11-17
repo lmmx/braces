@@ -41,16 +41,18 @@ pub fn compute_reprs(
         let mut child_raws = vec![];
 
         for (child_label, child_idx) in node.children.iter() {
+            // Extract just the String part of the (String, usize) key
+            let label_str = &child_label.0;
             child_repr_items.push(
                 reprs
                     .get(child_idx)
                     .cloned()
-                    .unwrap_or_else(|| child_label.clone()),
+                    .unwrap_or_else(|| label_str.clone()),
             );
             if let Some(r) = raw_leaves.get(child_idx) {
                 child_raws.extend(r.clone());
             } else {
-                child_raws.push(child_label.clone());
+                child_raws.push(label_str.clone());
             }
         }
 
