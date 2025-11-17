@@ -1,6 +1,52 @@
 // src/processor/ppb.rs
 //! Pretty-print braces expansion syntax with indentation
 
+/// Count visible characters (excluding ANSI escape codes)
+fn visible_len(s: &str) -> usize {
+    let mut count = 0;
+    let mut chars = s.chars();
+
+    while let Some(c) = chars.next() {
+        if c == '\x1b' {
+            // Skip escape sequence
+            if chars.next() == Some('[') {
+                // Skip until we find a letter (the command character)
+                for ch in chars.by_ref() {
+                    if ch.is_ascii_alphabetic() {
+                        break;
+                    }
+                }
+            }
+        } else {
+            count += 1;
+        }
+    }
+
+    count
+}
+
+/// Check if a string has any visible characters (excluding ANSI codes and whitespace)
+fn has_visible_content(s: &str) -> bool {
+    let mut chars = s.chars();
+
+    while let Some(c) = chars.next() {
+        if c == '\x1b' {
+            // Skip escape sequence
+            if chars.next() == Some('[') {
+                for ch in chars.by_ref() {
+                    if ch.is_ascii_alphabetic() {
+                        break;
+                    }
+                }
+            }
+        } else if !c.is_whitespace() {
+            return true;
+        }
+    }
+
+    false
+}
+
 /// Pretty-print a braces expression with indentation
 ///
 /// Takes a braces expression like `"a/{b,c/{d,e},f}"` and formats it with
@@ -31,22 +77,41 @@ pub fn pretty_braces(expr: &str) -> String {
 
     while i < chars.len() {
         let c = chars[i];
+
+        // Handle ANSI escape sequences
+        if c == '\x1b' && i + 1 < chars.len() && chars[i + 1] == '[' {
+            // Copy the entire escape sequence
+            line.push(c);
+            i += 1;
+            line.push(chars[i]); // '['
+            i += 1;
+            while i < chars.len() {
+                line.push(chars[i]);
+                if chars[i].is_ascii_alphabetic() {
+                    i += 1;
+                    break;
+                }
+                i += 1;
+            }
+            continue;
+        }
+
         match c {
             '{' => {
                 // Add opening brace to current line
                 line.push(c);
                 lines.push(line.clone());
 
-                // Record column position of the brace (for alignment)
-                stack.push(line.len());
+                // Record column position of the brace (for alignment) - use visible length
+                stack.push(visible_len(&line));
 
                 // Start new line indented to brace column
                 line = " ".repeat(stack.last().copied().unwrap_or(0));
                 i += 1;
             }
             '}' => {
-                // Push current line if it has content (strip trailing comma)
-                if !line.trim().is_empty() {
+                // Push current line if it has visible content (strip trailing comma)
+                if has_visible_content(&line) {
                     // Remove trailing comma if present
                     let trimmed = line.trim_end();
                     if let Some(stripped) = trimmed.strip_suffix(',') {
@@ -84,8 +149,8 @@ pub fn pretty_braces(expr: &str) -> String {
         }
     }
 
-    // Push final line if non-empty
-    if !line.trim().is_empty() {
+    // Push final line if it has visible content
+    if has_visible_content(&line) {
         lines.push(line);
     }
 
