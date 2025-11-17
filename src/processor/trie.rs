@@ -3,11 +3,13 @@ mod ordered_map;
 use crate::BraceConfig;
 use ordered_map::OrderedMap;
 
-/// Trie node
+/// Trie node: uses IndexMap-like OrderedMap whose key is (label, ID)
+///
+/// The ID allows us to treat duplicates as distinct nodes if not deduplicating.
 #[derive(Debug)]
 pub struct Node {
     pub label: String,
-    pub children: OrderedMap<String, usize>,
+    pub children: OrderedMap<(String, usize), usize>,
     pub is_leaf: bool,
     pub depth: usize,
 }
@@ -20,6 +22,8 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
         is_leaf: false,
         depth: 0,
     }];
+
+    let mut next_id = 0;
 
     for path in paths {
         let comps: Vec<String> = if config.allow_segment_split && !sep.is_empty() {
@@ -47,11 +51,14 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
 
         let mut cur = 0;
         for (i, comp) in comps.iter().enumerate() {
-            let child_idx = if let Some(&idx) = nodes[cur].children.get(comp) {
+            let key = (comp.clone(), next_id);
+            next_id += 1;
+
+            let child_idx = if let Some(&idx) = nodes[cur].children.get(&key) {
                 idx
             } else {
                 let idx = nodes.len();
-                nodes[cur].children.insert(comp.clone(), idx);
+                nodes[cur].children.insert(key, idx);
                 nodes.push(Node {
                     label: comp.clone(),
                     children: OrderedMap::new(),
