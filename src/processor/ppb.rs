@@ -1,6 +1,59 @@
 // src/processor/ppb.rs
 //! Pretty-print braces expansion syntax with indentation
 
+/// Strip ANSI escape codes from a string
+fn strip_ansi(s: &str) -> String {
+    let mut result = String::new();
+    let mut chars = s.chars().peekable();
+
+    while let Some(c) = chars.next() {
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            chars.next(); // consume '['
+                          // Skip until we hit a letter (the command)
+            while let Some(&ch) = chars.peek() {
+                chars.next();
+                if ch.is_ascii_alphabetic() {
+                    break;
+                }
+            }
+        } else {
+            result.push(c);
+        }
+    }
+
+    result
+}
+
+/// Skip ANSI escape sequence and append to current line
+fn skip_ansi_sequence(chars: &mut std::iter::Peekable<std::str::Chars>, current_line: &mut String) {
+    current_line.push('\x1b');
+    current_line.push(chars.next().unwrap()); // '['
+    while let Some(&ch) = chars.peek() {
+        current_line.push(chars.next().unwrap());
+        if ch.is_ascii_alphabetic() {
+            break;
+        }
+    }
+}
+
+/// Flush current line to output if it has visible content
+fn flush_line_if_needed(output: &mut String, current_line: &mut String) {
+    let stripped = strip_ansi(current_line);
+    if !stripped.trim().is_empty() {
+        // Remove trailing comma if present
+        if let Some(pos) = current_line.trim_end().rfind(',') {
+            current_line.truncate(pos);
+        }
+        output.push_str(current_line);
+        output.push('\n');
+    }
+}
+
+/// Get indentation string for current stack depth
+fn get_indent(indent_stack: &[usize]) -> String {
+    " ".repeat(indent_stack.last().copied().unwrap_or(0))
+}
+
 /// Pretty-print a braces expression with indentation
 ///
 /// Takes a braces expression like `"a/{b,c/{d,e},f}"` and formats it with
@@ -23,73 +76,60 @@
 /// // }
 /// ```
 pub fn pretty_braces(expr: &str) -> String {
-    let mut lines = Vec::new();
-    let mut stack: Vec<usize> = Vec::new(); // tracks column of each '{'
-    let mut line = String::new();
-    let chars: Vec<char> = expr.chars().collect();
-    let mut i = 0;
+    let mut output = String::new();
+    let mut indent_stack: Vec<usize> = Vec::new();
+    let mut current_line = String::new();
+    let mut chars = expr.chars().peekable();
 
-    while i < chars.len() {
-        let c = chars[i];
+    while let Some(c) = chars.next() {
+        // Preserve but skip over ANSI color codes
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            skip_ansi_sequence(&mut chars, &mut current_line);
+            continue;
+        }
+
         match c {
             '{' => {
-                // Add opening brace to current line
-                line.push(c);
-                lines.push(line.clone());
+                // Opening brace: output current line and increase indent
+                current_line.push('{');
+                output.push_str(&current_line);
+                output.push('\n');
 
-                // Record column position of the brace (for alignment)
-                stack.push(line.len());
-
-                // Start new line indented to brace column
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                indent_stack.push(strip_ansi(&current_line).len());
+                current_line = get_indent(&indent_stack);
             }
             '}' => {
-                // Push current line if it has content (strip trailing comma)
-                if !line.trim().is_empty() {
-                    // Remove trailing comma if present
-                    let trimmed = line.trim_end();
-                    if let Some(stripped) = trimmed.strip_suffix(',') {
-                        line = format!("{}{}", stripped, " ".repeat(line.len() - trimmed.len()));
-                    }
-                    lines.push(line);
-                }
+                // Closing brace: flush pending content and decrease indent
+                flush_line_if_needed(&mut output, &mut current_line);
 
-                // Create closing brace line at previous indentation
-                if let Some(indent) = stack.pop() {
-                    line = format!("{}}}", " ".repeat(indent.saturating_sub(1)));
-                } else {
-                    line = "}".to_string();
-                }
-                lines.push(line.clone());
+                let indent = indent_stack.pop().unwrap_or(0).saturating_sub(1);
+                output.push_str(&" ".repeat(indent));
+                output.push('}');
+                output.push('\n');
 
-                // Continue on new line at current indentation level
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                current_line = get_indent(&indent_stack);
             }
             ',' => {
-                // Add comma and go to new line
-                line.push(c);
-                lines.push(line);
-
-                // Start new line at current indentation
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                // Comma: output current item and start new line at same indent
+                current_line.push(',');
+                output.push_str(&current_line);
+                output.push('\n');
+                current_line = get_indent(&indent_stack);
             }
             _ => {
-                // Regular character - add to current line
-                line.push(c);
-                i += 1;
+                current_line.push(c);
             }
         }
     }
 
-    // Push final line if non-empty
-    if !line.trim().is_empty() {
-        lines.push(line);
+    // Handle any remaining content
+    if !strip_ansi(&current_line).trim().is_empty() {
+        output.push_str(&current_line);
+    } else if output.ends_with('\n') {
+        output.pop();
     }
 
-    lines.join("\n")
+    output
 }
 
 #[cfg(test)]
