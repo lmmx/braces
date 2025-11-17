@@ -12,10 +12,10 @@ impl Color {
     }
 }
 
-// Standard colors
+// Standard colors - chosen for maximum contrast and color-blind friendliness
 pub const CYAN: Color = Color::new(36);
 pub const YELLOW: Color = Color::new(33);
-pub const MAGENTA: Color = Color::new(35);
+pub const RED: Color = Color::new(31);
 pub const GREEN: Color = Color::new(32);
 pub const BLUE: Color = Color::new(34);
 

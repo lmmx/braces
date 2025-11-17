@@ -2,4 +2,4 @@
 source: tests/cli.rs
 expression: output
 ---
-[36m{[0ma/[33m{[0mb/[35m{[0mc[35m,[0md[35m}[0m[33m,[0me[33m}[0m[36m,[0mf[36m}[0m
+[36m{[0ma/[33m{[0mb/[31m{[0mc[31m,[0md[31m}[0m[33m,[0me[33m}[0m[36m,[0mf[36m}[0m

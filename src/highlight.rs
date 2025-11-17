@@ -2,9 +2,9 @@
 
 mod ansi;
 
-use ansi::{Highlight, BLUE, CYAN, GREEN, MAGENTA, YELLOW};
+use ansi::{Highlight, BLUE, CYAN, GREEN, RED, YELLOW};
 
-const BRACE_COLORS: &[ansi::Color] = &[CYAN, YELLOW, MAGENTA, GREEN, BLUE];
+const BRACE_COLORS: &[ansi::Color] = &[CYAN, YELLOW, RED, GREEN, BLUE];
 
 /// Highlight braces in the output with cycling colors per nesting level
 pub fn highlight_braces(text: &str) -> String {
