@@ -17,8 +17,15 @@ path = "src/cli.rs"
 required-features = ["cli"]
 
 [features]
-cli = []
 default = []
+highlight = ["dep:anstream", "dep:owo_colors"]
+
+cli = []
+cli-full = ["cli", "highlight"]
+
+[dependencies]
+anstream = { version = "0.6", optional = true }
+owo-colors = { version = "4", optional = true }
 
 [dev-dependencies]
 insta = "1.43.2"
