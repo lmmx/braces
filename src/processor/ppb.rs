@@ -46,80 +46,75 @@ fn strip_ansi(s: &str) -> String {
 /// // }
 /// ```
 pub fn pretty_braces(expr: &str) -> String {
-    let mut lines = Vec::new();
-    let mut stack: Vec<usize> = Vec::new(); // tracks column of each '{'
-    let mut line = String::new();
-    let chars: Vec<char> = expr.chars().collect();
-    let mut i = 0;
+    let mut output = String::new();
+    let mut indent_stack: Vec<usize> = Vec::new();
+    let mut current_line = String::new();
+    let mut chars = expr.chars().peekable();
 
-    while i < chars.len() {
-        let c = chars[i];
-
-        // Handle ANSI escape sequences - copy them but don't process
-        if c == '\x1b' && i + 1 < chars.len() && chars[i + 1] == '[' {
-            line.push(c);
-            i += 1;
-            line.push(chars[i]); // '['
-            i += 1;
-            while i < chars.len() {
-                line.push(chars[i]);
-                if chars[i].is_ascii_alphabetic() {
-                    i += 1;
+    while let Some(c) = chars.next() {
+        // Handle ANSI escape sequences
+        if c == '\x1b' && chars.peek() == Some(&'[') {
+            current_line.push(c);
+            current_line.push(chars.next().unwrap()); // '['
+            while let Some(&ch) = chars.peek() {
+                current_line.push(chars.next().unwrap());
+                if ch.is_ascii_alphabetic() {
                     break;
                 }
-                i += 1;
             }
             continue;
         }
 
         match c {
             '{' => {
-                line.push(c);
-                lines.push(line.clone());
-                // Use stripped length for indentation
-                stack.push(strip_ansi(&line).len());
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                current_line.push('{');
+                output.push_str(&current_line);
+                output.push('\n');
+
+                indent_stack.push(strip_ansi(&current_line).len());
+                current_line = " ".repeat(*indent_stack.last().unwrap());
             }
             '}' => {
-                // Check if line has visible content (ignoring ANSI codes and whitespace)
-                if !strip_ansi(&line).trim().is_empty() {
-                    let trimmed = line.trim_end();
-                    if let Some(stripped) = trimmed.strip_suffix(',') {
-                        line = format!("{}{}", stripped, " ".repeat(line.len() - trimmed.len()));
+                // Flush current line if it has visible content
+                let stripped = strip_ansi(&current_line);
+                if !stripped.trim().is_empty() {
+                    // Remove trailing comma if present
+                    if current_line.trim_end().ends_with(',') {
+                        let trimmed_len = current_line.trim_end().len();
+                        current_line.truncate(trimmed_len - 1);
                     }
-                    lines.push(line);
+                    output.push_str(&current_line);
+                    output.push('\n');
                 }
 
-                if let Some(indent) = stack.pop() {
-                    line = format!("{}}}", " ".repeat(indent.saturating_sub(1)));
-                } else {
-                    line = "}".to_string();
-                }
-                lines.push(line.clone());
+                // Add closing brace
+                let indent = indent_stack.pop().unwrap_or(0).saturating_sub(1);
+                output.push_str(&" ".repeat(indent));
+                output.push('}');
+                output.push('\n');
 
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                current_line = " ".repeat(indent_stack.last().copied().unwrap_or(0));
             }
             ',' => {
-                line.push(c);
-                lines.push(line);
-                line = " ".repeat(stack.last().copied().unwrap_or(0));
-                i += 1;
+                current_line.push(',');
+                output.push_str(&current_line);
+                output.push('\n');
+                current_line = " ".repeat(indent_stack.last().copied().unwrap_or(0));
             }
             _ => {
-                line.push(c);
-                i += 1;
+                current_line.push(c);
             }
         }
     }
 
-    // Check if final line has visible content
-    if !strip_ansi(&line).trim().is_empty() {
-        lines.push(line);
+    // Flush any remaining content
+    if !strip_ansi(&current_line).trim().is_empty() {
+        output.push_str(&current_line);
+    } else if output.ends_with('\n') {
+        output.pop(); // Remove trailing newline
     }
 
-    lines.join("\n")
+    output
 }
 
 #[cfg(test)]
