@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2](https://github.com/lmmx/braces/compare/braces-v0.2.1...braces-v0.2.2) - 2025-11-17
+
+### <!-- 1 -->Features
+
+- support NUL-separated input ([#10](https://github.com/lmmx/braces/pull/10))
+
 ## [0.2.1](https://github.com/lmmx/braces/compare/braces-v0.2.0...braces-v0.2.1) - 2025-11-17
 
 ### <!-- 9 -->Other
