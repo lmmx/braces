@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/lmmx/braces/compare/braces-v0.2.0...braces-v0.2.1) - 2025-11-17
+
+### <!-- 9 -->Other
+
+- pprint output ([#9](https://github.com/lmmx/braces/pull/9))
+
 ## [0.2.0](https://github.com/lmmx/braces/compare/braces-v0.1.6...braces-v0.2.0) - 2025-11-17
 
 ### <!-- 5 -->Refactor
