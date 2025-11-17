@@ -3,6 +3,7 @@ use std::collections::HashSet;
 
 pub(crate) mod expansion;
 mod normalise;
+pub mod ppb;
 mod trie;
 
 use expansion::{compute_reprs, expand_braces};
