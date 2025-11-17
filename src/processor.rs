@@ -129,7 +129,7 @@ pub struct BraceConfig {
     /// When `true`:
     /// - Input: `"a/{b,c}.rs"` → Expanded to `["a/b.rs", "a/c.rs"]` → Reprocessed
     pub reprocess_braces: bool,
-    
+
     /// Highlight braces with colors (default: `false`).
     /// Only available with the `highlight` feature enabled.
     #[cfg(feature = "highlight")]
