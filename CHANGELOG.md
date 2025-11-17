@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7](https://github.com/lmmx/braces/compare/braces-v0.1.6...braces-v0.1.7) - 2025-11-17
+
+### <!-- 5 -->Refactor
+
+- some initial steps to fix bugs ([#6](https://github.com/lmmx/braces/pull/6))
+- nice tests with helpers
+
+### <!-- 6 -->Testing
+
+- more round trip tests
+- test improvement
+- round trip tests
+
+### <!-- 9 -->Other
+
+- test code is not actually dead
+- dedup trie ([#7](https://github.com/lmmx/braces/pull/7))
+
 ## [0.1.6](https://github.com/lmmx/braces/compare/braces-v0.1.5...braces-v0.1.6) - 2025-11-16
 
 ### <!-- 2 -->Bug Fixes
