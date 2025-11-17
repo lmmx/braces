@@ -11,6 +11,7 @@ pub struct Node {
     pub label: String,
     pub children: OrderedMap<(String, usize), usize>,
     pub is_leaf: bool,
+    pub is_trailing_sep: bool,
     pub depth: usize,
 }
 
@@ -20,6 +21,7 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
         label: String::new(),
         children: OrderedMap::new(),
         is_leaf: false,
+        is_trailing_sep: false,
         depth: 0,
     }];
 
@@ -71,6 +73,7 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
                     label: comp.clone(),
                     children: OrderedMap::new(),
                     is_leaf: false,
+                    is_trailing_sep: false,
                     depth: nodes[cur].depth + 1,
                 });
                 idx
@@ -78,6 +81,8 @@ pub fn build_trie(paths: &[String], sep: &str, config: &BraceConfig) -> (Vec<Nod
             cur = child_idx;
             if is_last {
                 nodes[cur].is_leaf = true;
+                // Mark as trailing separator if the component is empty AND it's the last one
+                nodes[cur].is_trailing_sep = comp.is_empty() && path.ends_with(sep);
             }
         }
     }
